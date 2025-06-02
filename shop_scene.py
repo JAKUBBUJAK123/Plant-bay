@@ -23,7 +23,7 @@ class ShopScene:
             if event.button == 1:
                 print(f"Buying item {self.item_name} for {self.item_price} coins.")
                 self.game_manager.change_state("PLAYING")
-                self.game_manager.reset_round()
+                self.game_manager._next_round()
 
     def draw(self):
         self.screen.fill(self.background_color)
