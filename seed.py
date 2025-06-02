@@ -16,6 +16,7 @@ class Seed:
             name (str): The name of the seed.
             target_size (tuple[int, int]): The desired width and height to scale the image to.
         """
+        self.image_path = image_path
         self.image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, target_size)
 

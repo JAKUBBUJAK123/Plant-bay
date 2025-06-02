@@ -6,7 +6,7 @@ class Player:
     """
     Represents the player in the game, managing their score and seed backpack.
     """
-    def __init__(self , initial_seeds_count: int = 10):
+    def __init__(self , initial_seeds_count: int = 10 , initial_coins : int = 0):
         """
         Initializes the Player with a starting set of seeds.
 
@@ -19,6 +19,9 @@ class Player:
         for i in range(initial_seeds_count):
             seed = Seed(0,0 , 'assets/seed.jpg', 'Basic Seed', (40,40), 10)
             self.backpack_seeds.append(seed)
+
+        #coins
+        self.coins = initial_coins
 
     def add_seed(self, seed:Seed):
         """
@@ -72,3 +75,30 @@ class Player:
     def is_backpack_empty(self) -> bool:
         """Checks if the backpack is empty."""
         return len(self.backpack_seeds) == 0
+    
+
+    def add_coins(self, amount: int):
+        """
+        Adds coins to the player's total.
+
+        Args:
+            amount (int): The number of coins to add.
+        """
+        self.coins += amount
+        print(f"Added {amount} coins. Total coins: {self.coins}")
+
+    def remove_coins(self, amount: int):
+        """
+        Removes coins from the player's total.
+
+        Args:
+            amount (int): The number of coins to remove.
+        """
+        if amount <= self.coins:
+            self.coins -= amount
+            print(f"Removed {amount} coins. Total coins: {self.coins}")
+        else:
+            print("Not enough coins to buy a product.")
+
+    def get_coins(self) -> int:
+        return self.coins 

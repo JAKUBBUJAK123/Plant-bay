@@ -31,6 +31,9 @@ DEFAULT_SEED_VALUE = 10
 NUM_SEEDS_IN_HAND = 5
 NUM_INITIAL_BACKPACK_SEEDS = 10
 
+# Player Cash
+COINS_PER_ROUND = 50
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -55,12 +58,12 @@ class Game:
 
         # --- Game Variables ---
         self.current_score = 0
-        self.score_goal = 200
+        self.score_goal = 10
         self.predicted_score = 0
         self.round_number = 1
 
         # --- Game Objects ---
-        self.player = Player(NUM_INITIAL_BACKPACK_SEEDS)
+        self.player = Player(NUM_INITIAL_BACKPACK_SEEDS , 100)
         self.soils = []
         self.seeds_in_hand = [] 
 
@@ -80,7 +83,7 @@ class Game:
         self.drag_offset_y = 0
 
         # --- Scene Managers ---
-        self.shop_scene = ShopScene(self.screen, self , self.player) 
+        self.shop_scene = ShopScene(self.screen, self , self.player ,SEED_IMAGE_SIZE) 
         self.inventory_scene = InventoryScene(self.screen, self.player, self)
 
         self._initialize_game_objects()
@@ -231,7 +234,7 @@ class Game:
         for soil in self.soils:
             if soil.is_planted and soil.planted_seed is not None:
                 self.current_score += soil.planted_seed.value * soil.multiplayer
-                print(f"  Scored {soil.planted_seed.value * soil.multiplayer} from {soil.planted_seed.name} on soil (x{soil.multiplayer})")
+                print(f"Scored {soil.planted_seed.value * soil.multiplayer} from {soil.planted_seed.name} on soil (x{soil.multiplayer})")
                 soil.reset_soil()
 
         # Return unplanted seeds to backpack
@@ -240,7 +243,9 @@ class Game:
 
         if self.current_score >= self.score_goal:
             self.current_score = 0
+            self.player.add_coins(COINS_PER_ROUND)
             self.change_state(self.GAME_STATE_SHOP)
+            self.shop_scene.generate_products()
         elif self.current_score < self.score_goal and self.player.is_backpack_empty():
             self.change_state(self.GAME_STATE_LOSE)
             print("You lost! No seeds left in backpack.")
@@ -286,10 +291,10 @@ class Game:
             self.shop_scene.draw()
         elif self.current_game_state == self.GAME_STATE_INVENTORY:
             self.inventory_scene.draw()
+            self.screen.blit(self.backpack_icon_image, self.backpack_icon_rect)
         elif self.current_game_state == self.GAME_STATE_LOSE:
             self._draw_lose_screen()
-        if self.current_game_state != self.GAME_STATE_LOSE:
-            self.screen.blit(self.backpack_icon_image, self.backpack_icon_rect)
+
 
         pygame.display.flip()
 
@@ -317,6 +322,9 @@ class Game:
 
         # Draw UI elements
         self.play_hand_button.draw(self.screen)
+        # Draw player's coins
+        coins_text = self.font_score.render(f"Coins: {self.player.get_coins()}", True, (255, 255, 0)) # Yellow for coins
+        self.screen.blit(coins_text, (30, 70))
 
         # Draw Score Goal
         score_goal_text = self.font_score.render(f"Goal: {self.score_goal}", True, TEXT_COLOR)
@@ -329,6 +337,9 @@ class Game:
         # Draw Predicted Score
         predicted_score_text = self.font_score.render(f"Predicted: {self.predicted_score}", True, TEXT_COLOR)
         self.screen.blit(predicted_score_text, (30, SCREEN_HEIGHT // 2 + 30))
+
+        #Draw Backpack
+        self.screen.blit(self.backpack_icon_image, self.backpack_icon_rect)
 
 
     def change_state(self, new_state: str):

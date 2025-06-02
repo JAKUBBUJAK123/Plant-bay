@@ -1,7 +1,7 @@
 import pygame
 class Button:
     """A simple button class."""
-    def __init__(self , x, y , width, height, text :str , button_color: tuple , text_color: tuple , font_size: int):
+    def __init__(self , x, y , width, height, text :str, button_color: tuple , text_color: tuple , font_size: int):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.button_color = button_color
