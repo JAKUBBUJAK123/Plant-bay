@@ -6,6 +6,7 @@ from seed import Seed
 from button import Button
 from shop_scene import ShopScene
 from player import Player
+from inventory_scene import InventoryScene
 
 # --- Constants ---
 SCREEN_WIDTH = 800
@@ -28,7 +29,7 @@ SEED_IMAGE_SIZE = (40, 40)
 SEED_PADDING = 30
 DEFAULT_SEED_VALUE = 10
 NUM_SEEDS_IN_HAND = 5
-NUM_INITIAL_BACKPACK_SEEDS = 6
+NUM_INITIAL_BACKPACK_SEEDS = 10
 
 class Game:
     def __init__(self):
@@ -42,7 +43,9 @@ class Game:
         self.GAME_STATE_PLAYING = "PLAYING"
         self.GAME_STATE_SHOP = "SHOP"
         self.GAME_STATE_LOSE = "LOSE"
+        self.GAME_STATE_INVENTORY = "INVENTORY"
         self.current_game_state = self.GAME_STATE_PLAYING
+        self.previous_state = self.GAME_STATE_PLAYING
 
         # --- Fonts ---
         self.font_welcome = pygame.font.Font(None, 36)
@@ -63,6 +66,12 @@ class Game:
 
         # --- UI Elements ---
         self.play_hand_button = None
+        #Backpack
+        self.backpack_icon_image = pygame.image.load("assets/backpack.png").convert_alpha()
+        self.backpack_icon_image = pygame.transform.scale(self.backpack_icon_image, (60, 60))
+        self.backpack_icon_rect = self.backpack_icon_image.get_rect()
+        self.backpack_icon_rect.x = SCREEN_WIDTH - 60 - 20
+        self.backpack_icon_rect.y = SCREEN_HEIGHT - 60 - 20
 
         # Dragging state
         self.dragging_seed = False
@@ -71,9 +80,12 @@ class Game:
         self.drag_offset_y = 0
 
         # --- Scene Managers ---
-        self.shop_scene = ShopScene(self.screen, self) 
+        self.shop_scene = ShopScene(self.screen, self , self.player) 
+        self.inventory_scene = InventoryScene(self.screen, self.player, self)
+
         self._initialize_game_objects()
         self._initialize_ui_elements()
+        self._draw_hand_from_backpack()
         self.calculate_predicted_score()
         self._start_new_round()
 
@@ -98,6 +110,7 @@ class Game:
         button_y = SCREEN_HEIGHT // 2 - button_height // 2
         self.play_hand_button = Button(button_x, button_y, button_width, button_height,
                                        "Play Hand", BUTTON_COLOR, TEXT_COLOR , 24)
+        
 
     def _generate_new_seeds(self, num_seeds_to_generate, seed_image_size, padding, seed_y):
         """Generates a new set of seeds for the player's hand."""
@@ -145,10 +158,24 @@ class Game:
                 pygame.quit()
                 sys.exit()
 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.current_game_state != self.GAME_STATE_LOSE and \
+                   self.backpack_icon_rect.collidepoint(event.pos):
+                    if self.current_game_state == self.GAME_STATE_INVENTORY:
+                        # If inventory is open, close it
+                        self.change_state(self.previous_game_state)
+                    else:
+                        # If not open, open it and store current state
+                        self.previous_game_state = self.current_game_state
+                        self.change_state(self.GAME_STATE_INVENTORY)
+                    return
+
             if self.current_game_state == self.GAME_STATE_PLAYING:
                 self._handle_playing_events(event)
             elif self.current_game_state == self.GAME_STATE_SHOP:
                 self.shop_scene.handle_event(event)
+            elif self.current_game_state == self.GAME_STATE_INVENTORY:
+                self.inventory_scene.handle_event(event)
             elif self.current_game_state == self.GAME_STATE_LOSE:
                 print("Game Over! You lost.")
                 pass
@@ -243,6 +270,8 @@ class Game:
             self.calculate_predicted_score()
         elif self.current_game_state == self.GAME_STATE_SHOP:
             self.shop_scene.update() 
+        elif self.current_game_state == self.GAME_STATE_INVENTORY:
+            self.inventory_scene.update()
         elif self.current_game_state == self.GAME_STATE_LOSE:
             pass
 
@@ -255,8 +284,13 @@ class Game:
             self._draw_playing_elements()
         elif self.current_game_state == self.GAME_STATE_SHOP:
             self.shop_scene.draw()
+        elif self.current_game_state == self.GAME_STATE_INVENTORY:
+            self.inventory_scene.draw()
         elif self.current_game_state == self.GAME_STATE_LOSE:
             self._draw_lose_screen()
+        if self.current_game_state != self.GAME_STATE_LOSE:
+            self.screen.blit(self.backpack_icon_image, self.backpack_icon_rect)
+
         pygame.display.flip()
 
 

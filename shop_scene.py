@@ -1,11 +1,12 @@
 import pygame
 from button import Button
+from player import Player
 
 class ShopScene:
     """Represents the Shop scene of the game.
     Players are redirected here when they win a round.
     """
-    def __init__(self , screen: pygame.Surface , game_menager):
+    def __init__(self , screen: pygame.Surface , game_menager , player:Player):
         self.screen = screen
         self.game_manager = game_menager
         self.font_title = pygame.font.Font(None, 74)
