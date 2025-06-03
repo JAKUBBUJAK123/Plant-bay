@@ -3,6 +3,7 @@ from button import Button
 from player import Player
 from seed import Seed
 import random
+from soil_upgrade import SoilUpgrade
 
 class ShopScene:
     """Represents the Shop scene of the game.
@@ -20,6 +21,12 @@ class ShopScene:
         self.products_on_display = []
         self.num_product_slots = 3
         self.roll_cost = 10
+
+        #--- Shop items available---
+        self.available_shop_items = {
+            "seed": {"class": Seed, "image": "assets/seed.jpg", "base_value": 10, "price_multiplier": 3},
+            "watering_can": {"class": SoilUpgrade, "image": "assets/watering_can.png", "name": "Watering Can", "effect_value": 1, "base_price": 75}
+        }
 
         #--Shop UI---
         self.next_round_button = Button(20 , self.screen.get_height() - 70 , 180 , 50 , 
@@ -46,19 +53,34 @@ class ShopScene:
         start_x = (self.screen.get_width() - total_width_needed) // 2
 
         for i in range(self.num_product_slots):
-            seed_x = start_x + (i * (self.shop_item_size[0] + x_padding))
+            item_type = random.choice(list(self.available_shop_items.keys()))
+            item_info = self.available_shop_items[item_type]
 
-            seed_for_sale = Seed(
-                seed_x, seed_y_start,
-                "assets/seed.jpg",
-                f"Shop Seed {i+1}",
-                target_size=self.shop_item_size,
-                value=random.randint(10, 30)
-            )
-            # Add a price to the seed object for easy tracking
-            seed_for_sale.price = seed_for_sale.value * 3 # Price based on value
-            self.products_on_display.append(seed_for_sale)
+            item_x = start_x + (i * (self.shop_item_size[0] + x_padding))
 
+            if item_type == "seed":
+                value = random.randint(item_info["base_value"], item_info["base_value"] * 3)
+                price = value * item_info["price_multiplier"]
+                product = Seed(
+                    item_x, seed_y_start,
+                    item_info["image"],
+                    f"Seed {value}", # Name based on value
+                    target_size=self.shop_item_size,
+                    value=value
+                )
+                product.price = price
+            elif item_type == "watering_can":
+                price = item_info["base_price"]
+                product = SoilUpgrade(
+                    item_x, seed_y_start,
+                    item_info["image"],
+                    item_info["name"],
+                    target_size=self.shop_item_size,
+                    upgrade_effect=item_info["effect_value"]
+                )
+                product.price = price # Add price attribute to upgrade object
+
+            self.products_on_display.append(product)
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -69,15 +91,23 @@ class ShopScene:
                     if hasattr(seed_on_display, "buy_button_rect") and seed_on_display.buy_button_rect.collidepoint(mouse_pos):
                         if self.game_manager.player.get_coins() >= seed_on_display.price:
                             self.game_manager.player.remove_coins(seed_on_display.price)
-                            self.game_manager.player.add_seed(
-                                Seed(0, 0, seed_on_display.image_path, seed_on_display.name, value=seed_on_display.value)
-                            ) 
-                            self.products_on_display.pop(i) # Remove item from shop display
+                            # Add to backpack depending on type
+                            if isinstance(seed_on_display, Seed):
+                                self.game_manager.player.add_seed(
+                                    Seed(0, 0, seed_on_display.image_path, seed_on_display.name, value=seed_on_display.value)
+                                )
+                            elif isinstance(seed_on_display, SoilUpgrade):
+                                self.game_manager.player.add_upgrade(
+                                    SoilUpgrade(0, 0, seed_on_display.image_path, seed_on_display.name,
+                                                upgrade_effect=seed_on_display.upgrade_effect,
+                                                effect_value=getattr(seed_on_display, "effect_value", 1))
+                                )
                             print(f"Bought {seed_on_display.name} for {seed_on_display.price} coins.")
+                            self.products_on_display.pop(i) # Remove item from shop display
                         else:
-                            print("Not enough coins to buy this seed!")
+                            print("Not enough coins!")
                         break
-                # --- Handle Roll Button ---
+            # --- Handle Roll Button ---
                 if self.roll_button.is_clicked(mouse_pos):
                     if self.game_manager.player.get_coins() >= self.roll_cost:
                         self.game_manager.player.remove_coins(self.roll_cost)
@@ -105,27 +135,27 @@ class ShopScene:
         self.screen.blit(coins_text, (50, 50))
 
         # Draw shop products
-        for seed_on_display in self.products_on_display:
-            seed_on_display.draw(self.screen)
+        for product in self.products_on_display:
+            product.draw(self.screen)
 
             buy_button_width = 70
             buy_button_height = 25
-            buy_button_x = seed_on_display.rect.centerx - buy_button_width // 2
-            buy_button_y = seed_on_display.rect.bottom + 30
+            buy_button_x = product.rect.centerx - buy_button_width // 2
+            buy_button_y = product.rect.bottom + 30
 
             buy_button = Button(
                 buy_button_x,
                 buy_button_y,
                 buy_button_width,
                 buy_button_height,
-                f"Buy ({seed_on_display.price}$)",
+                f"Buy ({product.price}$)",
                 (0, 90, 0),
                 (255, 255, 255),
                 24
             )
             buy_button.draw(self.screen)
-            # Store the button rect for click detection (optional, see below)
-            seed_on_display.buy_button_rect = buy_button.rect
+            # Store the button rect for click detection
+            product.buy_button_rect = buy_button.rect
 
 
         # Draw control buttons

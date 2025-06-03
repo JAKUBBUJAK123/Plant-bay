@@ -2,6 +2,7 @@ import pygame
 from player import Player
 from seed import Seed
 from button import Button
+from soil_upgrade import SoilUpgrade
 
 class InventoryScene:
     def __init__(self , screen:pygame.Surface, player: Player , game_manager):
@@ -31,30 +32,57 @@ class InventoryScene:
 
     def draw(self):
         """Draw the inventory scene."""
-        self.screen.fill(self.background_color)
+        # Draw semi-transparent background
+        s = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
+        s.fill(self.background_color)
+        self.screen.blit(s, (0, 0))
 
-        overlay = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
-        overlay.fill(self.background_color)
-        self.screen.blit(overlay, (0, 0))
-
-        # Draw inventory title
+        # Draw title
         title_surface = self.font_title.render("Backpack Inventory", True, (255, 255, 255))
         title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 80))
         self.screen.blit(title_surface, title_rect)
 
+        # Draw coins (for consistency)
+        coins_text = self.font_item.render(f"Coins: {self.game_manager.player.get_coins()}", True, (255, 255, 0))
+        self.screen.blit(coins_text, (50, 50))
 
-        # Draw backpack contents in a grid
-        for i, seed in enumerate(self.player.backpack_seeds):
-            row = i // self.cols
-            col = i % self.cols
-            x = self.grid_start_x + col * (self.item_slot_size + self.slot_padding)
-            y = self.grid_start_y + row * (self.item_slot_size + self.slot_padding)
+        # --- Display Seeds ---
+        seeds_label = self.font_item.render("Seeds:", True, (255, 255, 255))
+        self.screen.blit(seeds_label, (50, 150))
 
-            # Draw slot background (optional, but good for clarity)
-            slot_rect = pygame.Rect(x, y, self.item_slot_size, self.item_slot_size)
-            pygame.draw.rect(self.screen, (80, 80, 100), slot_rect, border_radius=3) # Slot background
+        seed_x_start = 50
+        seed_y_start = 190
+        x_offset = self.item_slot_size + 10 # Spacing
+        y_offset = self.item_slot_size + 30 # Spacing for text below
 
-            # Draw seed image (scaled to slot size)
-            scaled_seed_image = pygame.transform.scale(seed.image, (self.item_slot_size - 10, self.item_slot_size - 10)) # Slightly smaller than slot
-            seed_image_rect = scaled_seed_image.get_rect(center=slot_rect.center)
-            self.screen.blit(scaled_seed_image, seed_image_rect)
+        current_x = seed_x_start
+        current_y = seed_y_start
+        max_items_per_row = (self.screen.get_width() - seed_x_start * 2) // x_offset
+
+        for i, seed in enumerate(self.game_manager.player.get_backpack_seeds()):
+            # Update seed's rect position for drawing in inventory
+            seed.update_position(current_x, current_y)
+            seed.draw(self.screen) # Draw the seed image and name/value
+
+            current_x += x_offset
+            if (i + 1) % max_items_per_row == 0:
+                current_x = seed_x_start
+                current_y += y_offset
+
+        # --- Display Upgrades ---
+        upgrades_label = self.font_item.render("Upgrades:", True, (255, 255, 255))
+        # Position below seeds, or at a fixed spot if no seeds
+        upgrades_y_start = current_y + y_offset + 30 if self.game_manager.player.get_backpack_seed_count() > 0 else seed_y_start + y_offset + 30
+        self.screen.blit(upgrades_label, (50, upgrades_y_start))
+
+        current_x = seed_x_start # Reset x for upgrades
+        current_y = upgrades_y_start + 40 # Start drawing upgrades below label
+
+        for i, upgrade in enumerate(self.game_manager.player.get_backpack_upgrades()):
+            upgrade.update_position(current_x, current_y)
+            upgrade.draw(self.screen) # Draw the upgrade image and name
+
+            current_x += x_offset
+            if (i + 1) % max_items_per_row == 0:
+                current_x = seed_x_start
+                current_y += y_offset

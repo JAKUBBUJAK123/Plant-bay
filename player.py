@@ -1,12 +1,13 @@
 import pygame
 from seed import Seed
 import random
+from soil_upgrade import SoilUpgrade
 
 class Player:
     """
     Represents the player in the game, managing their score and seed backpack.
     """
-    def __init__(self , initial_seeds_count: int = 10 , initial_coins : int = 0):
+    def __init__(self , initial_seeds_count: int = 10 , initial_coins : int = 0 , inital_upgrades = 1):
         """
         Initializes the Player with a starting set of seeds.
 
@@ -14,14 +15,20 @@ class Player:
             initial_seeds_count (int): The number of seeds to start the game with in the backpack.
         """
         self.backpack_seeds: list[Seed] = []
+        self.backpack_upgrades: list[SoilUpgrade] = []
         self.max_backpack_size = 20
+        self.max_upgrade_capacity = 5
+        #coins
+        self.coins = initial_coins
 
         for i in range(initial_seeds_count):
             seed = Seed(0,0 , 'assets/seed.jpg', 'Basic Seed', (40,40), 10)
             self.backpack_seeds.append(seed)
 
-        #coins
-        self.coins = initial_coins
+        for i in range(inital_upgrades):
+            upgrade = SoilUpgrade(0,0 , 'assets/watering_can.png', 'Watering Can', (40,40), 'multiplier_boost', 1)
+            self.backpack_upgrades.append(upgrade)
+
 
     def add_seed(self, seed:Seed):
         """
@@ -36,6 +43,13 @@ class Player:
         else:
             print("Backpack is full. Cannot add more seeds.")
 
+
+    def add_upgrade(self, upgrade:SoilUpgrade):
+        if (len(self.backpack_upgrades) < self.max_upgrade_capacity):
+            self.backpack_upgrades.append(upgrade)
+            print(f"Added {upgrade.name} to backpack.")
+        else:
+            print("Backpack is full. Cannot add more upgrades.")
 
     def get_seeds_to_hand(self, num_seeds_to_draw:int) -> list[Seed]:
         """
@@ -71,11 +85,20 @@ class Player:
         """Returns the current number of seeds in the backpack."""
         return len(self.backpack_seeds)
 
+    def get_backpack_upgrade_count(self) -> int:
+        """Returns the current number of upgrades in the backpack."""
+        return len(self.backpack_upgrades)
 
     def is_backpack_empty(self) -> bool:
         """Checks if the backpack is empty."""
         return len(self.backpack_seeds) == 0
-    
+    def get_backpack_seeds(self) -> list[Seed]:
+        return self.backpack_seeds
+
+    def get_backpack_upgrades(self) -> list[SoilUpgrade]:
+        """Returns a reference to the list of upgrades in the backpack."""
+        return self.backpack_upgrades
+
 
     def add_coins(self, amount: int):
         """

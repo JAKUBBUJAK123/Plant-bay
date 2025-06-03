@@ -13,7 +13,7 @@ class Soil:
 
         self.is_planted = False
         self.planted_seed = None
-        self.multiplayer = 2.0
+        self.multiplier = 1.0
 
     def draw(self, screen: pygame.Surface):
         screen.blit(self.image, self.rect)
@@ -40,3 +40,4 @@ class Soil:
         self.is_planted = False
         self.planted_seed = None
         self.current_color = self.default_color
+        

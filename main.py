@@ -7,6 +7,7 @@ from button import Button
 from shop_scene import ShopScene
 from player import Player
 from inventory_scene import InventoryScene
+from soil_upgrade import SoilUpgrade
 
 # --- Constants ---
 SCREEN_WIDTH = 800
@@ -22,6 +23,7 @@ SOIL_SIZE = 80
 SOIL_PADDING = 20
 SOIL_DEFAULT_COLOR = (139, 69, 19)
 PLANTED_SOIL_COLOR = (0, 70, 0)
+UPGRADED_SOIL_COLOR = (0, 120, 255)
 NUM_SOILS = 5
 
 # Seed properties
@@ -33,6 +35,16 @@ NUM_INITIAL_BACKPACK_SEEDS = 10
 
 # Player Cash
 COINS_PER_ROUND = 50
+
+# Upgrade properties
+UPGRADE_IMAGE_SIZE = (40, 40)
+NUM_INITIAL_BACKPACK_UPGRADES = 1
+
+#--- Global Game dragable---
+dragging_item = False
+dragged_item = None
+drag_offset_x = 0
+drag_offset_y = 0
 
 class Game:
     def __init__(self):
@@ -50,6 +62,9 @@ class Game:
         self.current_game_state = self.GAME_STATE_PLAYING
         self.previous_state = self.GAME_STATE_PLAYING
 
+        #--- Dragging state ---
+        
+
         # --- Fonts ---
         self.font_welcome = pygame.font.Font(None, 36)
         self.font_hello_botany = pygame.font.Font(None, 48)
@@ -63,9 +78,10 @@ class Game:
         self.round_number = 1
 
         # --- Game Objects ---
-        self.player = Player(NUM_INITIAL_BACKPACK_SEEDS , 100)
+        self.player = Player(NUM_INITIAL_BACKPACK_SEEDS , 100 , NUM_INITIAL_BACKPACK_UPGRADES)
         self.soils = []
         self.seeds_in_hand = [] 
+        self.upgrades_in_hand = []
 
         # --- UI Elements ---
         self.play_hand_button = None
@@ -76,11 +92,6 @@ class Game:
         self.backpack_icon_rect.x = SCREEN_WIDTH - 60 - 20
         self.backpack_icon_rect.y = SCREEN_HEIGHT - 60 - 20
 
-        # Dragging state
-        self.dragging_seed = False
-        self.dragged_seed = None
-        self.drag_offset_x = 0
-        self.drag_offset_y = 0
 
         # --- Scene Managers ---
         self.shop_scene = ShopScene(self.screen, self , self.player ,SEED_IMAGE_SIZE) 
@@ -133,7 +144,7 @@ class Game:
         self.predicted_score = 0
         for soil in self.soils:
             if soil.is_planted and soil.planted_seed is not None:
-                self.predicted_score += soil.planted_seed.value * soil.multiplayer
+                self.predicted_score += soil.planted_seed.value * soil.multiplier
 
 
     def _draw_hand_from_backpack(self):
@@ -153,6 +164,19 @@ class Game:
             seed.original_y = seed_y
             self.seeds_in_hand.append(seed)
 
+    def _draw_upgrades_from_backpack(self):
+        """Draw upgrades from the player's backpack to their hand."""
+        self.upgrades_in_hand.clear()
+        drawn_upgrades = self.player.get_backpack_upgrades()
+        # Place upgrades at the bottom left, spaced out
+        upgrade_y = SCREEN_HEIGHT - UPGRADE_IMAGE_SIZE[1] - 50
+        upgrade_x_start = 30
+        for i, upgrade in enumerate(drawn_upgrades):
+            x = upgrade_x_start + i * (UPGRADE_IMAGE_SIZE[0] + 20)
+            upgrade.update_position(x, upgrade_y)
+            upgrade.original_x = x
+            upgrade.original_y = upgrade_y
+            self.upgrades_in_hand.append(upgrade)
 
     def handle_events(self):
         """Handles all Pygame events."""
@@ -185,56 +209,75 @@ class Game:
 
     def _handle_playing_events(self, event):
         """Handles events when the game is in the PLAYING state."""
-
+        global dragging_item, dragged_item, drag_offset_x, drag_offset_y
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse_x , mouse_y = event.pos
+                #seeds
                 for seed in self.seeds_in_hand:
                     if seed.is_clicked((mouse_x, mouse_y)):
-                        self.dragging_seed = True
-                        self.dragged_seed = seed
-                        self.drag_offset_x = mouse_x - self.dragged_seed.rect.x
-                        self.drag_offset_y = mouse_y - self.dragged_seed.rect.y
+                        dragging_item = True
+                        dragged_item = seed
+                        drag_offset_x = mouse_x - dragged_item.rect.x
+                        drag_offset_y = mouse_y - dragged_item.rect.y
                         break
-                
-                if self.play_hand_button.is_clicked((mouse_x, mouse_y)):
-                    self._play_hand()
+                # Upgrades
+            if not dragging_item:
+                for upgrade in self.upgrades_in_hand:
+                    if upgrade.is_clicked((mouse_x, mouse_y)):
+                        dragging_item = True
+                        dragged_item = upgrade
+                        drag_offset_x = mouse_x - dragged_item.rect.x
+                        drag_offset_y = mouse_y - dragged_item.rect.y
+                        break
+            if self.play_hand_button.is_clicked((mouse_x, mouse_y)):
+                self._play_hand()
 
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
-                if self.dragging_seed and self.dragged_seed:
+                if dragging_item:
                     dropped_on_soil = False
-                    for soil in self.soils:
-                        if self.dragged_seed.rect.colliderect(soil.rect) and not soil.is_planted:
-                            dropped_on_soil = True
-                            soil.plant_seed(self.dragged_seed)
-                            soil.set_color(PLANTED_SOIL_COLOR) 
-                            self.seeds_in_hand.remove(self.dragged_seed)
-                            break
-
+                    if isinstance(dragged_item, Seed):
+                        for soil in self.soils:
+                            if dragged_item.rect.colliderect(soil.rect) and not soil.is_planted:
+                                dropped_on_soil = True
+                                soil.plant_seed(dragged_item)
+                                soil.set_color(PLANTED_SOIL_COLOR)
+                                self.seeds_in_hand.remove(dragged_item) # Remove seed from hand
+                                break
+                    # Check if it's a SoilUpgrade being dropped
+                    elif isinstance(dragged_item, SoilUpgrade):
+                        for soil in self.soils:
+                            if dragged_item.rect.colliderect(soil.rect):
+                                soil.set_color(UPGRADED_SOIL_COLOR) 
+                                dropped_on_soil = True
+                                dragged_item.apply_effect(soil)
+                                self.player.backpack_upgrades.remove(dragged_item)
+                                self.upgrades_in_hand.remove(dragged_item)  # <-- Remove from hand
+                                break
                     if not dropped_on_soil:
-                        self.dragged_seed.reset_position()
+                        dragged_item.reset_position()
 
                     # Reset dragging state
-                    self.dragging_seed = False
-                    self.dragged_seed = None
-                    self.drag_offset_x = 0
-                    self.drag_offset_y = 0
+                    dragging_item = False
+                    dragged_item = None
+                    drag_offset_x = 0
+                    drag_offset_y = 0
 
         if event.type == pygame.MOUSEMOTION:
-            if self.dragging_seed and self.dragged_seed:
+            if dragging_item and dragged_item is not None:
                 mouse_x, mouse_y = event.pos
-                new_x = mouse_x - self.drag_offset_x
-                new_y = mouse_y - self.drag_offset_y
-                self.dragged_seed.update_position(new_x, new_y)
+                new_x = mouse_x - drag_offset_x
+                new_y = mouse_y - drag_offset_y
+                dragged_item.update_position(new_x, new_y)
 
     def _play_hand(self):
         """Processes the played hand, calculates score, and resets the round."""
         # Score all planted soils
         for soil in self.soils:
             if soil.is_planted and soil.planted_seed is not None:
-                self.current_score += soil.planted_seed.value * soil.multiplayer
-                print(f"Scored {soil.planted_seed.value * soil.multiplayer} from {soil.planted_seed.name} on soil (x{soil.multiplayer})")
+                self.current_score += soil.planted_seed.value * soil.multiplier
+                print(f"  Scored {soil.planted_seed.value * soil.multiplier} from {soil.planted_seed.name} on soil (x{soil.multiplier})")
                 soil.reset_soil()
 
         # Return unplanted seeds to backpack
@@ -242,14 +285,13 @@ class Game:
         self.seeds_in_hand.clear()
 
         if self.current_score >= self.score_goal:
-            self.current_score = 0
+            print(f"ROUND {self.round_number} WON! Score: {self.current_score} / Goal: {self.score_goal}")
             self.player.add_coins(COINS_PER_ROUND)
             self.change_state(self.GAME_STATE_SHOP)
+            self.current_score = 0
             self.shop_scene.generate_products()
-        elif self.current_score < self.score_goal and self.player.is_backpack_empty():
-            self.change_state(self.GAME_STATE_LOSE)
-            print("You lost! No seeds left in backpack.")
         else:
+            print(f"ROUND {self.round_number} FAILED. Current Score: {self.current_score} / Goal: {self.score_goal}")
             self._start_new_round()
 
 
@@ -266,6 +308,7 @@ class Game:
 
         self.player.return_seeds_to_backpack(self.seeds_in_hand)
         self._draw_hand_from_backpack()
+        self._draw_upgrades_from_backpack() 
         self.predicted_score = 0
 
 
@@ -294,7 +337,11 @@ class Game:
             self.screen.blit(self.backpack_icon_image, self.backpack_icon_rect)
         elif self.current_game_state == self.GAME_STATE_LOSE:
             self._draw_lose_screen()
-
+        global dragged_item , dragging_item
+        if dragged_item is not None and dragging_item:
+            dragged_item.draw(self.screen)
+        for upgrade in self.upgrades_in_hand:
+            upgrade.draw(self.screen)
 
         pygame.display.flip()
 
