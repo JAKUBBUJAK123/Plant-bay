@@ -1,5 +1,5 @@
 import pygame
-from seed import Seed
+from game_objects.seed import Seed
 
 class Soil:
     def __init__(self , x: int, y:int , size:int, image_path:str, default_color: tuple):

@@ -1,9 +1,9 @@
 import pygame
 from button import Button
-from player import Player
-from seed import Seed
+from game_objects.player import Player
+from game_objects.seed import Seed
 import random
-from soil_upgrade import SoilUpgrade
+from game_objects.soil_upgrade import SoilUpgrade
 
 class ShopScene:
     """Represents the Shop scene of the game.
@@ -12,6 +12,7 @@ class ShopScene:
     def __init__(self , screen: pygame.Surface , game_menager , player:Player , shop_item_size: tuple =(80,80)):
         self.screen = screen
         self.game_manager = game_menager
+        self.player = player
         self.font_title = pygame.font.Font(None, 74)
         self.font_text = pygame.font.Font(None, 36)
         self.background_color = (100, 100, 150)
@@ -29,16 +30,10 @@ class ShopScene:
         }
 
         #--Shop UI---
-        self.next_round_button = Button(20 , self.screen.get_height() - 70 , 180 , 50 , 
+        self.next_round_button = Button(20 , self.screen.get_height() - 70 , 180 , 50 ,
                                         "Next Round", (50,150,50), (255,255,255), 24)
         self.roll_button = Button(20 , self.screen.get_height() - 140 , 180 , 50 ,
                                         "Roll", (150,50,50), (255,255,255), 24)
-        #backpack
-        self.backpack_icon_image = pygame.image.load("assets/backpack.png").convert_alpha()
-        self.backpack_icon_image = pygame.transform.scale(self.backpack_icon_image, (60, 60))
-        self.backpack_icon_rect = self.backpack_icon_image.get_rect()
-        self.backpack_icon_rect.x = self.screen.get_width() - self.backpack_icon_rect.width - 20
-        self.backpack_icon_rect.y = self.screen.get_height() - self.backpack_icon_rect.height - 20
         self.generate_products()
 
 
@@ -76,7 +71,8 @@ class ShopScene:
                     item_info["image"],
                     item_info["name"],
                     target_size=self.shop_item_size,
-                    upgrade_effect=item_info["effect_value"]
+                    upgrade_effect='multiplier_boost',
+                    effect_value=item_info['effect_value']
                 )
                 product.price = price # Add price attribute to upgrade object
 
@@ -87,22 +83,23 @@ class ShopScene:
             if event.button == 1:
                 mouse_pos = event.pos
                 #--- Handle Buying Products ---
-                for i, seed_on_display in enumerate(self.products_on_display):
-                    if hasattr(seed_on_display, "buy_button_rect") and seed_on_display.buy_button_rect.collidepoint(mouse_pos):
-                        if self.game_manager.player.get_coins() >= seed_on_display.price:
-                            self.game_manager.player.remove_coins(seed_on_display.price)
+                for i, product_on_display in enumerate(self.products_on_display):
+                    # Check if the "Buy" button for this product was clicked
+                    if hasattr(product_on_display, "buy_button_rect") and product_on_display.buy_button_rect.collidepoint(mouse_pos):
+                        if self.player.get_coins() >= product_on_display.price:
+                            self.player.remove_coins(product_on_display.price)
                             # Add to backpack depending on type
-                            if isinstance(seed_on_display, Seed):
-                                self.game_manager.player.add_seed(
-                                    Seed(0, 0, seed_on_display.image_path, seed_on_display.name, value=seed_on_display.value)
+                            if isinstance(product_on_display, Seed):
+                                self.player.add_seed(
+                                    Seed(0, 0, product_on_display.image_path, product_on_display.name, value=product_on_display.value)
                                 )
-                            elif isinstance(seed_on_display, SoilUpgrade):
-                                self.game_manager.player.add_upgrade(
-                                    SoilUpgrade(0, 0, seed_on_display.image_path, seed_on_display.name,
-                                                upgrade_effect=seed_on_display.upgrade_effect,
-                                                effect_value=getattr(seed_on_display, "effect_value", 1))
+                            elif isinstance(product_on_display, SoilUpgrade):
+                                self.player.add_upgrade(
+                                    SoilUpgrade(0, 0, product_on_display.image_path, product_on_display.name,
+                                                upgrade_effect=product_on_display.upgrade_effect,
+                                                effect_value=product_on_display.effect_value)
                                 )
-                            print(f"Bought {seed_on_display.name} for {seed_on_display.price} coins.")
+                            print(f"Bought {product_on_display.name} for {product_on_display.price} coins.")
                             self.products_on_display.pop(i) # Remove item from shop display
                         else:
                             print("Not enough coins!")
@@ -118,11 +115,8 @@ class ShopScene:
                 # --- Handle Next Round Button ---
                 if self.next_round_button.is_clicked(mouse_pos):
                     self.game_manager.change_state(self.game_manager.GAME_STATE_PLAYING)
-                    self.game_manager._next_round()
+                    self.game_manager.round_manager.next_round()
 
-                # --- Handle Backpack Icon Click ---
-                if self.backpack_icon_rect.collidepoint(mouse_pos):
-                    self.game_manager.change_state(self.game_manager.GAME_STATE_INVENTORY)
 
     def draw(self):
         self.screen.fill(self.background_color)
@@ -161,9 +155,6 @@ class ShopScene:
         # Draw control buttons
         self.roll_button.draw(self.screen)
         self.next_round_button.draw(self.screen)
-
-        # Draw Backpack Icon (top right)
-        self.screen.blit(self.backpack_icon_image, self.backpack_icon_rect)
 
     def update(self):
         pass

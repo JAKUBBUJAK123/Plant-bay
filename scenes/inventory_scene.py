@@ -1,8 +1,8 @@
 import pygame
-from player import Player
-from seed import Seed
+from game_objects.player import Player
+from game_objects.seed import Seed
 from button import Button
-from soil_upgrade import SoilUpgrade
+from game_objects.soil_upgrade import SoilUpgrade
 
 class InventoryScene:
     def __init__(self , screen:pygame.Surface, player: Player , game_manager):
@@ -32,7 +32,6 @@ class InventoryScene:
 
     def draw(self):
         """Draw the inventory scene."""
-        # Draw semi-transparent background
         s = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
         s.fill(self.background_color)
         self.screen.blit(s, (0, 0))
@@ -60,9 +59,8 @@ class InventoryScene:
         max_items_per_row = (self.screen.get_width() - seed_x_start * 2) // x_offset
 
         for i, seed in enumerate(self.game_manager.player.get_backpack_seeds()):
-            # Update seed's rect position for drawing in inventory
             seed.update_position(current_x, current_y)
-            seed.draw(self.screen) # Draw the seed image and name/value
+            seed.draw(self.screen)
 
             current_x += x_offset
             if (i + 1) % max_items_per_row == 0:
@@ -71,7 +69,7 @@ class InventoryScene:
 
         # --- Display Upgrades ---
         upgrades_label = self.font_item.render("Upgrades:", True, (255, 255, 255))
-        # Position below seeds, or at a fixed spot if no seeds
+
         upgrades_y_start = current_y + y_offset + 30 if self.game_manager.player.get_backpack_seed_count() > 0 else seed_y_start + y_offset + 30
         self.screen.blit(upgrades_label, (50, upgrades_y_start))
 

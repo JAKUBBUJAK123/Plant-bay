@@ -10,11 +10,15 @@ class Button:
         self.is_hovered = False
 
     def draw(self, screen:pygame.Surface):
-        pygame.draw.rect(screen, self.button_color , self.rect , border_radius=5)
-
-        text_surface = self.font.render(self.text, True, self.text_color)
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        screen.blit(text_surface, text_rect)
+        if hasattr(self, "image") and self.image is not None:
+            screen.blit(self.image, self.rect)
+        elif self.button_color is not None:
+            pygame.draw.rect(screen, self.button_color, self.rect, border_radius=5)
+        # Draw text if needed
+        if self.text:
+            text_surface = self.font.render(self.text, True, self.text_color)
+            text_rect = text_surface.get_rect(center=self.rect.center)
+            screen.blit(text_surface, text_rect)
 
     def is_clicked(self, mouse_pos: tuple) -> bool:
         """Check if the button is clicked."""

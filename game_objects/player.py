@@ -1,7 +1,7 @@
 import pygame
-from seed import Seed
+from game_objects.seed import Seed
 import random
-from soil_upgrade import SoilUpgrade
+from game_objects.soil_upgrade import SoilUpgrade
 
 class Player:
     """
