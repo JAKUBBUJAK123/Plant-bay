@@ -28,10 +28,10 @@ class PlayingScene:
                 self.game_manager.round_manager.play_hand()
 
     def update(self):
-        """Updates logic for the playing scene."""
-        # Any specific updates for elements in playing scene can go here
-        # E.g., animations, status changes (not currently implemented)
-        pass
+        mouse_pos = pygame.mouse.get_pos()
+        self.play_hand_button.is_hovered = self.play_hand_button.rect.collidepoint(mouse_pos)
+        for soil in self.game_manager.soils:
+            soil.update(self.game_manager.clock.get_time())
 
     def draw(self):
         """Draws elements specific to the PLAYING state."""

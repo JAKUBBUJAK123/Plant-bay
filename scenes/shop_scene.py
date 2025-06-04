@@ -25,15 +25,15 @@ class ShopScene:
 
         #--- Shop items available---
         self.available_shop_items = {
-            "seed": {"class": Seed, "image": "assets/seed.jpg", "base_value": 10, "price_multiplier": 3},
+            "seed": {"class": Seed, "image": "assets/seed.png", "base_value": 10, "price_multiplier": 3},
             "watering_can": {"class": SoilUpgrade, "image": "assets/watering_can.png", "name": "Watering Can", "effect_value": 1, "base_price": 75}
         }
 
         #--Shop UI---
         self.next_round_button = Button(20 , self.screen.get_height() - 70 , 180 , 50 ,
-                                        "Next Round", (50,150,50), (255,255,255), 24)
+                                        "Next Round", (50,150,50),(0, 200, 0) ,(255,255,255), 24)
         self.roll_button = Button(20 , self.screen.get_height() - 140 , 180 , 50 ,
-                                        "Roll", (150,50,50), (255,255,255), 24)
+                                        "Roll", (150,50,50), (200, 80, 80),(255,255,255), 24)
         self.generate_products()
 
 
@@ -144,6 +144,7 @@ class ShopScene:
                 buy_button_height,
                 f"Buy ({product.price}$)",
                 (0, 90, 0),
+                (0, 150, 0),
                 (255, 255, 255),
                 24
             )
@@ -157,4 +158,8 @@ class ShopScene:
         self.next_round_button.draw(self.screen)
 
     def update(self):
-        pass
+        buttons = [self.roll_button, self.next_round_button]
+        mouse_pos = pygame.mouse.get_pos()
+        for button in buttons:
+            button.is_hovered = button.rect.collidepoint(mouse_pos)
+            

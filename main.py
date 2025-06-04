@@ -72,19 +72,23 @@ class Game:
         self.dragged_item = None
         self.drag_offset_x = 0
         self.drag_offset_y = 0
-
+        self.dragged_item_target_pos = None
+        self.dragged_item_scale = 1.0
+        self.drag_scale_target = 1.0
+        self.drag_ease = 0.2
         # --- UI Elements ---
         #Backpack
         self.backpack_icon_button = Button(
-            x=SCREEN_WIDTH - 70, y =SCREEN_HEIGHT -70,
+            x=SCREEN_WIDTH - 100, y =SCREEN_HEIGHT -100,
             width=50, height=50,
             text="",
             button_color=(255,255,255),
+            button_hover_color=BUTTON_COLOR,
             text_color=(255,255,255),
             font_size=1
         )
         self.backpack_icon_button.image = pygame.image.load("assets/backpack.png").convert_alpha()
-        self.backpack_icon_button.image = pygame.transform.scale(self.backpack_icon_button.image, (50, 50))
+        self.backpack_icon_button.image = pygame.transform.scale(self.backpack_icon_button.image, (80, 80))
 
         # --- Scene Managers ---
         self.shop_scene = ShopScene(self.screen, self , self.player, shop_item_size=(80, 80)) 
@@ -133,10 +137,12 @@ class Game:
             # --- Unified Drag & Drop Handling---
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_x, mouse_y = event.pos
-
+    
                 if self.current_game_state == self.GAME_STATE_PLAYING:
                     for seed in self.seeds_in_hand:
                         if seed.is_clicked((mouse_x, mouse_y)):
+                            self.dragged_item_scale = 1.0
+                            self.drag_scale_target = 1.15
                             self.dragging_item = True
                             self.dragged_item = seed
                             self.drag_offset_x = mouse_x - self.dragged_item.rect.x
@@ -145,35 +151,44 @@ class Game:
                 elif self.current_game_state == self.GAME_STATE_INVENTORY:
                     for upgrade in self.player.get_backpack_upgrades():
                         if upgrade.is_clicked((mouse_x, mouse_y)):
+                            self.dragged_item_scale = 1.0
+                            self.drag_scale_target = 1.15
                             self.dragging_item = True
                             self.dragged_item = upgrade
                             self.drag_offset_x = mouse_x - self.dragged_item.rect.x
                             self.drag_offset_y = mouse_y - self.dragged_item.rect.y
                             self.change_state(self.GAME_STATE_PLAYING)
                             break
-
+                        
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.dragging_item and self.dragged_item is not None:
                     self.round_manager.handle_item_drop(self.dragged_item, event.pos)
-
                     self.dragging_item = False
                     self.dragged_item = None
                     self.drag_offset_x = 0
                     self.drag_offset_y = 0
-
+                    self.dragged_item_target_pos = None
+                    self.dragged_item_scale = 1.0
+                    self.drag_scale_target = 1.0
+    
             elif event.type == pygame.MOUSEMOTION:
                 if self.dragging_item and self.dragged_item is not None:
                     mouse_x, mouse_y = event.pos
-                    new_x = mouse_x - self.drag_offset_x
-                    new_y = mouse_y - self.drag_offset_y
-                    self.dragged_item.update_position(new_x, new_y)
+                    # Set the target position for lerping
+                    self.dragged_item_target_pos = (
+                        mouse_x - self.drag_offset_x,
+                        mouse_y - self.drag_offset_y
+                    )
+                    self.drag_scale_target = 1.15
+    
 
-
-    def update(self):
+    def update(self , dt):
         """Updates game logic based on the current game state."""
         if self.current_game_state == self.GAME_STATE_PLAYING:
             self.playing_scene.update()
             self.round_manager.calculate_predicted_score()
+            for soil in self.soils:
+                soil.update(dt)
 
         elif self.current_game_state == self.GAME_STATE_SHOP:
             self.shop_scene.update() 
@@ -182,7 +197,20 @@ class Game:
             self.inventory_scene.update()
         elif self.current_game_state == self.GAME_STATE_LOSE:
             self.lose_scene.update()
+        # --- Dragging Logic ---
+        if self.dragging_item and self.dragged_item is not None and self.dragged_item_target_pos is not None:
+            # Lerp position
+            cur_x, cur_y = self.dragged_item.rect.x, self.dragged_item.rect.y
+            target_x, target_y = self.dragged_item_target_pos
 
+
+            new_x = cur_x + (target_x - cur_x) * self.drag_ease
+            new_y = cur_y + (target_y - cur_y) * self.drag_ease
+
+            self.dragged_item.update_position(int(new_x), int(new_y))
+
+            if hasattr(self, 'drag_scale_target') and hasattr(self, 'dragged_item_scale'):
+                 self.dragged_item_scale += (self.drag_scale_target - self.dragged_item_scale) * 0.2
 
     def draw(self):
         """Draws elements on the screen based on the current game state."""
@@ -206,6 +234,9 @@ class Game:
         if self.dragged_item is not None and self.dragging_item:
             self.dragged_item.draw(self.screen)
 
+
+
+
         pygame.display.flip()
 
 
@@ -216,8 +247,9 @@ class Game:
     def run(self):
         """Main game loop."""
         while True:
+            dt = self.clock.tick(60)
             self.handle_events()
-            self.update()
+            self.update(dt)
             self.draw()
             self.clock.tick(FPS)
 

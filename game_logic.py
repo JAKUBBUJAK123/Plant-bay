@@ -72,6 +72,7 @@ class GameRoundManager:
                         soil.plant_seed(dropped_item)
                         soil.set_color(PLANTED_SOIL_COLOR)
                         self.game_manager.seeds_in_hand.remove(dropped_item)
+                        soil.start_shaking(duration=200, intensity=10)
                         print(f"Planted {dropped_item.name} on soil (multiplier x{soil.multiplier})")
                     else:
                         print("Soil is already planted! Cannot plant seed.")
@@ -82,6 +83,7 @@ class GameRoundManager:
                     self.game_manager.player.backpack_upgrades.remove(dropped_item)
                     if dropped_item in self.game_manager.upgrades_in_hand:
                         self.game_manager.upgrades_in_hand.remove(dropped_item)
+                        soil.start_shaking(duration=200, intensity=10)
                     print(f"Used {dropped_item.name} on soil (multiplier now x{soil.multiplier})")
                 break
 

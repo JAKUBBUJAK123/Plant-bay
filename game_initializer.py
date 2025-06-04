@@ -20,7 +20,7 @@ class GameInitializer:
 
         for i in range(self.game_manager.round_manager.NUM_SOILS):
             x = start_x + (i * (SOIL_SIZE + SOIL_PADDING))
-            soil = Soil(x, plot_y, SOIL_SIZE, "assets/soil.jpg", SOIL_DEFAULT_COLOR)
+            soil = Soil(x, plot_y, SOIL_SIZE, "assets/soil.png", SOIL_DEFAULT_COLOR)
             self.game_manager.soils.append(soil)
 
     def initialize_ui_elements(self):
@@ -32,5 +32,5 @@ class GameInitializer:
 
         self.game_manager.playing_scene.play_hand_button = Button(
             button_x, button_y, button_width, button_height,
-            "Play Hand", (50,150,50), (255,255,255), 24
+            "Play Hand", (50,150,50), (0, 150, 0),(255,255,255), 24
         )

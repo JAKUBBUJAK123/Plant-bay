@@ -22,11 +22,11 @@ class Player:
         self.coins = initial_coins
 
         for i in range(initial_seeds_count):
-            seed = Seed(0,0 , 'assets/seed.jpg', 'Basic Seed', (40,40), 10)
+            seed = Seed(0,0 , 'assets/seed.png', 'Basic Seed', (50,50), 10)
             self.backpack_seeds.append(seed)
 
         for i in range(inital_upgrades):
-            upgrade = SoilUpgrade(0,0 , 'assets/watering_can.png', 'Watering Can', (40,40), 'multiplier_boost', 1)
+            upgrade = SoilUpgrade(0,0 , 'assets/watering_can.png', 'Watering Can', (60,60), 'multiplier_boost', 1)
             self.backpack_upgrades.append(upgrade)
 
 

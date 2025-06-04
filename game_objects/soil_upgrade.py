@@ -3,7 +3,7 @@ import pygame
 class SoilUpgrade:
     """
     Class to handle soil upgrades in a game."""
-    def __init__(self , x , y, image_path:str, name , target_size = (40,40) , upgrade_effect = "multiplier_boost", effect_value = 1):
+    def __init__(self , x , y, image_path:str, name , target_size = (60,60) , upgrade_effect = "multiplier_boost", effect_value = 1):
         """
         Initializes a SoilUpgrade object.
 
@@ -40,6 +40,10 @@ class SoilUpgrade:
         text_surface = font.render(self.name, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))
         screen.blit(text_surface, text_rect)
+
+    def update(self, dt: int):
+        for soil in self.soils:
+            soil.update(dt)
 
     def update_position(self, new_x, new_y):
         """
