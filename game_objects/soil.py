@@ -1,6 +1,7 @@
 import pygame
 from game_objects.seed import Seed
 import random
+from game_effects.particles import ParticleSystem
 
 class Soil:
     def __init__(self , x: int, y:int , size:int, image_path:str, default_color: tuple):
@@ -11,6 +12,7 @@ class Soil:
         self.original_image = self.image 
         self.default_color = default_color 
         self.current_color = default_color 
+        self.current_image_path = image_path
 
         self.is_planted = False
         self.planted_seed = None
@@ -26,13 +28,13 @@ class Soil:
         self.original_x = x 
         self.original_y = y
 
+        #Particles
+        self.particle_system = ParticleSystem()
+
+
     def draw(self, screen: pygame.Surface):
         screen.blit(self.image, self.rect)
-
-        if self.is_planted:
-            s = pygame.Surface(self.rect.size, pygame.SRCALPHA) # Create a transparent surface
-            s.fill(self.current_color + (100,)) # Fill with color + alpha (transparency)
-            screen.blit(s, self.rect)
+        self.particle_system.draw(screen)
 
     def update(self, dt: int):
         #Shaking logic
@@ -49,10 +51,23 @@ class Soil:
                 self.shake_offset_y = random.uniform(-current_intensity, current_intensity)
                 self.rect.topleft = (self.original_x + self.shake_offset_x, self.original_y + self.shake_offset_y)
 
+        # Update particles
+        self.particle_system.update()
+
+    def spawn_particles(self , count: int , color):
+        """Spawns particles at the soil's current position."""
+        self.particle_system.emit(self.rect.centerx, self.rect.centery ,count, color)
 
     def set_color(self, color: tuple[int, int, int]):
         """Changes the current display color of the soil (e.g., when planted)."""
         self.current_color = color
+
+    def set_image(self, image_path: str):
+        """Sets a new image for the soil."""
+        img = pygame.image.load(image_path).convert_alpha()
+        img = pygame.transform.scale(img, (self.rect.width, self.rect.height))
+        self.image = img
+        self.current_image_path = image_path
 
     def reset_color(self):
         """Resets the soil to its default color."""
@@ -66,7 +81,7 @@ class Soil:
         """Resets the soil to its initial state."""
         self.is_planted = False
         self.planted_seed = None
-        self.current_color = self.default_color
+        self.set_image(self.current_image_path)
 
     def start_shaking(self, duration: int, intensity: int):
         """Starts the shaking effect on the soil."""

@@ -79,6 +79,7 @@ class SoilUpgrade:
         """
         if self.upgrade_effect == "multiplier_boost":
             target_soil.multiplier += self.effect_value
+            target_soil.set_color((0, 255, 0))
             print(f"Applied {self.name} to soil! Soil multiplier is now x{target_soil.multiplier}")
         else:
             print('Unknown upgrade effect:', self.upgrade_effect)

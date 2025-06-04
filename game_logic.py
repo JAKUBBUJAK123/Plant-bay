@@ -70,7 +70,8 @@ class GameRoundManager:
                     if not soil.is_planted:
                         dropped_on_target = True
                         soil.plant_seed(dropped_item)
-                        soil.set_color(PLANTED_SOIL_COLOR)
+                        soil.set_image('assets/planted_soil.png')
+                        soil.spawn_particles(20, (50, 168, 82 , 180))
                         self.game_manager.seeds_in_hand.remove(dropped_item)
                         soil.start_shaking(duration=200, intensity=10)
                         print(f"Planted {dropped_item.name} on soil (multiplier x{soil.multiplier})")
@@ -78,8 +79,8 @@ class GameRoundManager:
                         print("Soil is already planted! Cannot plant seed.")
                 elif isinstance(dropped_item, SoilUpgrade):
                     dropped_on_target = True
-                    soil.set_color(UPGRADED_SOIL_COLOR)
                     dropped_item.apply_effect(soil)
+                    soil.spawn_particles(12, (0, 120, 255, 180))
                     self.game_manager.player.backpack_upgrades.remove(dropped_item)
                     if dropped_item in self.game_manager.upgrades_in_hand:
                         self.game_manager.upgrades_in_hand.remove(dropped_item)
