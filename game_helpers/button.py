@@ -6,7 +6,7 @@ class Button:
         self.text = text
         self.button_color = button_color
         self.text_color = text_color
-        self.font = pygame.font.Font(None, font_size)
+        self.font = pygame.font.Font("assets/fonts/pixelFont.ttf", font_size)
         self.is_hovered = False
         self.button_hover_color = button_hover_color
 

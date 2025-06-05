@@ -1,8 +1,9 @@
 # scenes/playing_scene.py
 import pygame
-from button import Button
+from game_helpers.button import Button
 from game_objects.soil import Soil
-
+from game_helpers.tilemap_generator import TilemapGenerator
+from tilesets.background_tileset import TILE_SIZE , Tile_types, GAME_MAP
 
 TEXT_COLOR = (255, 255, 255)
 BG_COLOR = (0, 128, 0)
@@ -15,15 +16,15 @@ class PlayingScene:
         self.screen = screen
         self.game_manager = game_manager
 
-
-        self.play_hand_button = None # This will be set by GameInitializer
+        self.tilemap_generator = TilemapGenerator(GAME_MAP ,TILE_SIZE , Tile_types)
+        self.play_hand_button = None
 
         # Fonts (can be passed from game_manager or defined here if specific)
-        self.font_score = pygame.font.Font(None, 30)
+        self.font_score = pygame.font.Font("assets/fonts/pixelFont.ttf", 30)
 
         #---coin ---
         self.coin_image = pygame.image.load("assets/animated_coins.png").convert_alpha()
-        self.coin_image = pygame.transform.scale(self.coin_image, (50, 50))
+        self.coin_image = pygame.transform.scale(self.coin_image, (30, 30))
 
 
     def handle_event(self, event):
@@ -41,7 +42,7 @@ class PlayingScene:
 
     def draw(self):
         """Draws elements specific to the PLAYING state."""
-        self.screen.fill(BG_COLOR) # Ensure background is drawn
+        self.tilemap_generator.draw(self.screen)
 
         # Draw soil plots
         for soil in self.game_manager.soils:
@@ -68,9 +69,9 @@ class PlayingScene:
         self.screen.blit(predicted_score_text, (30, self.screen.get_height() // 2 + 30))
 
         # Draw coins
-        coin_x =  70
-        coin_y = 70
+        coin_x =  30
+        coin_y = self.screen.get_height() //2 -100
         self.screen.blit(self.coin_image, (coin_x, coin_y))
-        coins_text = self.font_score.render(f"{self.game_manager.player.get_coins()} x", True, (255, 255, 0))
-        self.screen.blit(coins_text, (coin_x -60, coin_y + 20))
+        coins_text = self.font_score.render(f"x {self.game_manager.player.get_coins()}", True, (255, 255, 0))
+        self.screen.blit(coins_text, (coin_x +50, coin_y  + 5))
 

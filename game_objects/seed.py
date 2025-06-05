@@ -5,7 +5,7 @@ class Seed:
     Represents a single seed in the player's hand/deck.
     Now uses an image asset.
     """
-    def __init__(self, x: int, y: int, image_path: str, name: str = "Basic Seed", target_size: tuple[int, int] = (40, 40) , value: int = 10):
+    def __init__(self, x: int, y: int, image_path: str, name: str = "Basic Seed", target_size: tuple[int, int] = (50, 50) , value: int = 10):
         """
         Initializes a Seed object.
 
@@ -38,8 +38,7 @@ class Seed:
         # Draw the seed image
         screen.blit(self.image, self.rect)
 
-        # Draw the seed's name
-        font = pygame.font.Font(None, 20) # Smaller font for seed names
+        font = pygame.font.Font("assets/fonts/pixelFont.ttf", 15)
         text_surface = font.render(self.name, True, (255, 255, 255)) # White text
         # Position text below the seed's image
         text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))

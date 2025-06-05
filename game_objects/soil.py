@@ -10,6 +10,7 @@ class Soil:
 
         self.rect = self.image.get_rect(topleft=(x, y)) 
         self.original_image = self.image 
+        self.original_image_path = image_path
         self.default_color = default_color 
         self.current_color = default_color 
         self.current_image_path = image_path
@@ -81,7 +82,7 @@ class Soil:
         """Resets the soil to its initial state."""
         self.is_planted = False
         self.planted_seed = None
-        self.set_image(self.current_image_path)
+        self.set_image(self.original_image_path)
 
     def start_shaking(self, duration: int, intensity: int):
         """Starts the shaking effect on the soil."""

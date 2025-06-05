@@ -1,5 +1,5 @@
 import pygame
-from button import Button
+from game_helpers.button import Button
 from game_objects.player import Player
 from game_objects.seed import Seed
 import random
@@ -13,8 +13,8 @@ class ShopScene:
         self.screen = screen
         self.game_manager = game_menager
         self.player = player
-        self.font_title = pygame.font.Font(None, 74)
-        self.font_text = pygame.font.Font(None, 36)
+        self.font_title = pygame.font.Font("assets/fonts/pixelFont.ttf", 74)
+        self.font_text =pygame.font.Font("assets/fonts/pixelFont.ttf", 30)
         self.background_color = (100, 100, 150)
 
         #--- Shop Items ---
@@ -22,6 +22,10 @@ class ShopScene:
         self.products_on_display = []
         self.num_product_slots = 3
         self.roll_cost = 10
+        
+        #--- Coin Image ---
+        self.coin_image = pygame.image.load("assets/animated_coins.png").convert_alpha()
+        self.coin_image = pygame.transform.scale(self.coin_image, (30, 30))
 
         #--- Shop items available---
         self.available_shop_items = {
@@ -59,7 +63,7 @@ class ShopScene:
                 product = Seed(
                     item_x, seed_y_start,
                     item_info["image"],
-                    f"Seed {value}", # Name based on value
+                    f"Basic Seed", # Name based on value
                     target_size=self.shop_item_size,
                     value=value
                 )
@@ -125,15 +129,19 @@ class ShopScene:
         title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 100))
         self.screen.blit(title_surface, title_rect)
         
-        coins_text = self.font_text.render(f"Coins: {self.game_manager.player.get_coins()}", True, (255, 255, 0))
-        self.screen.blit(coins_text, (50, 50))
+        # Draw player coin
+        coin_x =  30
+        coin_y = self.screen.get_height() //2 -100
+        self.screen.blit(self.coin_image, (coin_x, coin_y))
+        coins_text = self.font_text.render(f"x {self.game_manager.player.get_coins()}", True, (255, 255, 0))
+        self.screen.blit(coins_text, (coin_x +50, coin_y  + 5))
 
         # Draw shop products
         for product in self.products_on_display:
             product.draw(self.screen)
 
-            buy_button_width = 70
-            buy_button_height = 25
+            buy_button_width = 100
+            buy_button_height = 30
             buy_button_x = product.rect.centerx - buy_button_width // 2
             buy_button_y = product.rect.bottom + 30
 

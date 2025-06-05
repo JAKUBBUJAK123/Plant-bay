@@ -1,7 +1,7 @@
 import pygame
 from game_objects.player import Player
 from game_objects.seed import Seed
-from button import Button
+from game_helpers.button import Button
 from game_objects.soil_upgrade import SoilUpgrade
 
 class InventoryScene:
@@ -11,9 +11,12 @@ class InventoryScene:
         self.player = player
 
         self.background_color = (50,50,80,200)
-        self.font_title = pygame.font.Font(None, 60)
-        self.font_item = pygame.font.Font(None, 24)
+        self.font_title = pygame.font.Font("assets/fonts/pixelFont.ttf", 60)
+        self.font_item = pygame.font.Font("assets/fonts/pixelFont.ttf", 24)
         self.close_button_text_color = (255, 255, 255)
+
+        self.coin_image = pygame.image.load("assets/animated_coins.png").convert_alpha()
+        self.coin_image = pygame.transform.scale(self.coin_image, (30, 30))
 
         self.grid_start_x = 100
         self.grid_start_y = 150
@@ -40,10 +43,6 @@ class InventoryScene:
         title_surface = self.font_title.render("Backpack Inventory", True, (255, 255, 255))
         title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 80))
         self.screen.blit(title_surface, title_rect)
-
-        # Draw coins (for consistency)
-        coins_text = self.font_item.render(f"Coins: {self.game_manager.player.get_coins()}", True, (255, 255, 0))
-        self.screen.blit(coins_text, (50, 50))
 
         # --- Display Seeds ---
         seeds_label = self.font_item.render("Seeds:", True, (255, 255, 255))
@@ -73,8 +72,8 @@ class InventoryScene:
         upgrades_y_start = current_y + y_offset + 30 if self.game_manager.player.get_backpack_seed_count() > 0 else seed_y_start + y_offset + 30
         self.screen.blit(upgrades_label, (50, upgrades_y_start))
 
-        current_x = seed_x_start # Reset x for upgrades
-        current_y = upgrades_y_start + 40 # Start drawing upgrades below label
+        current_x = seed_x_start
+        current_y = upgrades_y_start + 40
 
         for i, upgrade in enumerate(self.game_manager.player.get_backpack_upgrades()):
             upgrade.update_position(current_x, current_y)

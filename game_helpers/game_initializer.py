@@ -1,6 +1,6 @@
 import pygame
 from game_objects.soil import Soil
-from button import Button
+from game_helpers.button import Button
 
 SOIL_SIZE = 80
 SOIL_PADDING = 20

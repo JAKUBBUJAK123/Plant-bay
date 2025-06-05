@@ -3,7 +3,7 @@ import pygame
 import sys
 # Import refactored components
 from game_objects.player import Player
-from button import Button
+from game_helpers.button import Button
 
 # Import scenes
 from scenes.shop_scene import ShopScene
@@ -12,18 +12,19 @@ from scenes.playing_scene import PlayingScene
 from scenes.lose_scene import LoseScene 
 
 # Import game logic and initialization helpers
-from game_logic import GameRoundManager
-from game_initializer import GameInitializer
+from game_helpers.game_logic import GameRoundManager
+from game_helpers.game_initializer import GameInitializer
 
 # --- Global Constants ---
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 832
+SCREEN_HEIGHT = 640
 GAME_TITLE = "Botanic Game"
 FPS = 60
 BG_COLOR = (0, 128, 0)
 TEXT_COLOR = (255, 255, 255)
 BUTTON_COLOR = (50, 150, 50)
 BUTTON_HOVER_COLOR = (70, 170, 70)
+
 
 #--- Game State Constants---
 GAME_STATE_PLAYING = "PLAYING"

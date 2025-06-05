@@ -36,7 +36,7 @@ class SoilUpgrade:
         """
         screen.blit(self.image, self.rect.topleft)
 
-        font = pygame.font.Font(None, 20)
+        font = pygame.font.Font("assets/fonts/pixelFont.ttf", 20)
         text_surface = font.render(self.name, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))
         screen.blit(text_surface, text_rect)
