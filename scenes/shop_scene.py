@@ -4,6 +4,8 @@ from game_objects.player import Player
 from game_objects.seed import Seed
 import random
 from game_objects.soil_upgrade import SoilUpgrade
+from game_helpers.tilemap_generator import TilemapGenerator
+from tilesets.background_tileset import TILE_SIZE, Shop_tiles, SHOP_MAP
 
 class ShopScene:
     """Represents the Shop scene of the game.
@@ -16,8 +18,9 @@ class ShopScene:
         self.font_title = pygame.font.Font("assets/fonts/pixelFont.ttf", 74)
         self.font_text =pygame.font.Font("assets/fonts/pixelFont.ttf", 30)
         self.background_color = (100, 100, 150)
+        self.tilemap = TilemapGenerator(SHOP_MAP, TILE_SIZE, Shop_tiles)
 
-        #--- Shop Items ---
+       #--- Shop Items ---
         self.shop_item_size = shop_item_size
         self.products_on_display = []
         self.num_product_slots = 3
@@ -45,7 +48,7 @@ class ShopScene:
         """Generates random products for the shop."""
 
         self.products_on_display.clear()
-        seed_y_start = self.screen.get_height() // 2 - self.shop_item_size[1] // 2 - 50
+        seed_y_start = self.screen.get_height() // 2 - self.shop_item_size[1] // 2 - 90
         x_padding = 50
         total_width_needed = (self.num_product_slots * self.shop_item_size[0]) + \
                              ((self.num_product_slots - 1) * x_padding)
@@ -71,7 +74,7 @@ class ShopScene:
             elif item_type == "watering_can":
                 price = item_info["base_price"]
                 product = SoilUpgrade(
-                    item_x, seed_y_start,
+                    item_x, seed_y_start ,
                     item_info["image"],
                     item_info["name"],
                     target_size=self.shop_item_size,
@@ -123,9 +126,9 @@ class ShopScene:
 
 
     def draw(self):
-        self.screen.fill(self.background_color)
+        self.tilemap.draw(self.screen)
 
-        title_surface = self.font_title.render("The Seed Shop", True, (255, 255, 255))
+        title_surface = self.font_title.render("The Seed Shop", True, (7, 22, 105))
         title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 100))
         self.screen.blit(title_surface, title_rect)
         
@@ -170,4 +173,8 @@ class ShopScene:
         mouse_pos = pygame.mouse.get_pos()
         for button in buttons:
             button.is_hovered = button.rect.collidepoint(mouse_pos)
+
+        # --- Item Popup ---
+        for product in self.products_on_display:
+            product.update_hoover_screen(mouse_pos)
             

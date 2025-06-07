@@ -3,7 +3,7 @@ import pygame
 class SoilUpgrade:
     """
     Class to handle soil upgrades in a game."""
-    def __init__(self , x , y, image_path:str, name , target_size = (60,60) , upgrade_effect = "multiplier_boost", effect_value = 1):
+    def __init__(self , x , y, image_path:str, name , target_size = (60,60) ,description="simple 2x multiplier", upgrade_effect = "multiplier_boost", effect_value = 1):
         """
         Initializes a SoilUpgrade object.
 
@@ -26,6 +26,10 @@ class SoilUpgrade:
         self.original_x = x
         self.original_y = y
 
+        self.is_hovered = False
+        self.description = description
+        self.popup_font = pygame.font.Font("assets/fonts/pixelFont.ttf", 14)
+
     
     def draw(self, screen:pygame.Surface):
         """
@@ -36,10 +40,8 @@ class SoilUpgrade:
         """
         screen.blit(self.image, self.rect.topleft)
 
-        font = pygame.font.Font("assets/fonts/pixelFont.ttf", 20)
-        text_surface = font.render(self.name, True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))
-        screen.blit(text_surface, text_rect)
+
+        self.draw_popup_pos(screen)
 
     def update(self, dt: int):
         for soil in self.soils:
@@ -83,3 +85,32 @@ class SoilUpgrade:
             print(f"Applied {self.name} to soil! Soil multiplier is now x{target_soil.multiplier}")
         else:
             print('Unknown upgrade effect:', self.upgrade_effect)
+
+
+    def update_hoover_screen(self , mouse_pos):
+        self.is_hovered = self.rect.collidepoint(mouse_pos)
+
+    def draw_popup_pos(self , screen):
+        if self.is_hovered:
+            
+            text_surface = self.popup_font.render(self.description, True, (255, 255, 255))
+
+            
+            padding = 5
+            popup_width = text_surface.get_width() + 2 * padding
+            popup_height = text_surface.get_height() + 2 * padding
+
+            
+            popup_x = self.rect.centerx - popup_width // 2
+            popup_y = self.rect.top - popup_height - 5
+
+            if popup_x < 0:
+                popup_x = 0
+            if popup_x + popup_width > screen.get_width():
+                popup_x = screen.get_width() - popup_width
+
+            popup_rect = pygame.Rect(popup_x, popup_y, popup_width, popup_height)
+            pygame.draw.rect(screen, (30, 30, 30), popup_rect, border_radius=5) 
+            pygame.draw.rect(screen, (100, 100, 100), popup_rect, 1, border_radius=5) 
+
+            screen.blit(text_surface, (popup_x + padding, popup_y + padding))

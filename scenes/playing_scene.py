@@ -3,7 +3,7 @@ import pygame
 from game_helpers.button import Button
 from game_objects.soil import Soil
 from game_helpers.tilemap_generator import TilemapGenerator
-from tilesets.background_tileset import TILE_SIZE , Tile_types, GAME_MAP
+from tilesets.background_tileset import TILE_SIZE , Main_tiles, GAME_MAP
 
 TEXT_COLOR = (255, 255, 255)
 BG_COLOR = (0, 128, 0)
@@ -16,7 +16,7 @@ class PlayingScene:
         self.screen = screen
         self.game_manager = game_manager
 
-        self.tilemap_generator = TilemapGenerator(GAME_MAP ,TILE_SIZE , Tile_types)
+        self.tilemap_generator = TilemapGenerator(GAME_MAP ,TILE_SIZE , Main_tiles)
         self.play_hand_button = None
 
         # Fonts (can be passed from game_manager or defined here if specific)
@@ -39,10 +39,15 @@ class PlayingScene:
         for soil in self.game_manager.soils:
             soil.update(self.game_manager.clock.get_time())
 
+        # --- Item Popup ---
+        for seed in self.game_manager.seeds_in_hand:
+            seed.update_hoover_screen(mouse_pos)
+
 
     def draw(self):
         """Draws elements specific to the PLAYING state."""
         self.tilemap_generator.draw(self.screen)
+
 
         # Draw soil plots
         for soil in self.game_manager.soils:

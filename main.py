@@ -213,9 +213,11 @@ class Game:
             if hasattr(self, 'drag_scale_target') and hasattr(self, 'dragged_item_scale'):
                  self.dragged_item_scale += (self.drag_scale_target - self.dragged_item_scale) * 0.2
 
+        
+        
+
     def draw(self):
         """Draws elements on the screen based on the current game state."""
-        self.screen.fill(BG_COLOR)
 
         if self.current_game_state == self.GAME_STATE_PLAYING:
             self.playing_scene.draw()

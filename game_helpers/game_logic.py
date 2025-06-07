@@ -7,7 +7,7 @@ from game_objects.soil_upgrade import SoilUpgrade
 DEFAULT_SEED_VALUE = 10
 NUM_SEEDS_IN_HAND = 5
 SEED_IMAGE_SIZE = (40, 40)
-SEED_PADDING = 30
+SEED_PADDING = 25
 COINS_PER_ROUND = 50
 PLANTED_SOIL_COLOR = (0, 70, 0)
 UPGRADED_SOIL_COLOR = (0, 120, 255) 
@@ -33,10 +33,10 @@ class GameRoundManager:
         self.game_manager.seeds_in_hand.clear()
         drawn_seeds = self.game_manager.player.get_seeds_to_hand(NUM_SEEDS_IN_HAND)
 
-        seed_y = self.game_manager.screen.get_height() - SEED_IMAGE_SIZE[1] - 50
+        seed_y = self.game_manager.screen.get_height() - SEED_IMAGE_SIZE[1] - 16
         seed_area_width = SEED_IMAGE_SIZE[0]
-        total_seeds_width = (len(drawn_seeds) * seed_area_width) + ((len(drawn_seeds) - 1) * SEED_PADDING)
-        start_seed_x = (self.game_manager.screen.get_width() - total_seeds_width) // 2
+        total_seeds_width = (len(drawn_seeds) * seed_area_width) + ((len(drawn_seeds) - 1))
+        start_seed_x = (self.game_manager.screen.get_width() - total_seeds_width) // 2 -  SEED_IMAGE_SIZE[0] - 10
 
         for i, seed in enumerate(drawn_seeds):
             x = start_seed_x + (i * (seed_area_width + SEED_PADDING))

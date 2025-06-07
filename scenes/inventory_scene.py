@@ -3,6 +3,8 @@ from game_objects.player import Player
 from game_objects.seed import Seed
 from game_helpers.button import Button
 from game_objects.soil_upgrade import SoilUpgrade
+from game_helpers.tilemap_generator import TilemapGenerator
+from tilesets.background_tileset import TILE_SIZE, Backpack_tiles, BACKPACK_MAP 
 
 class InventoryScene:
     def __init__(self , screen:pygame.Surface, player: Player , game_manager):
@@ -24,20 +26,28 @@ class InventoryScene:
         self.slot_padding = 10
         self.cols = 5
 
+        self.upgrades = self.game_manager.player.get_backpack_upgrades()
+        self.seeds = self.game_manager.player.get_backpack_seeds()
+
+        self.tilemap = TilemapGenerator(BACKPACK_MAP, TILE_SIZE, Backpack_tiles)
     def handle_event(self, event:pygame.event.Event):
         """Handle events for the inventory scene."""
         pass
 
 
     def update(self):
-        pass
+        mouse_pos = pygame.mouse.get_pos()
+        for seed in self.seeds:
+            seed.update_hoover_screen(mouse_pos)
+
+        for upgrade in self.upgrades:
+            upgrade.update_hoover_screen(mouse_pos)
+
 
 
     def draw(self):
         """Draw the inventory scene."""
-        s = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
-        s.fill(self.background_color)
-        self.screen.blit(s, (0, 0))
+        self.tilemap.draw(self.screen)
 
         # Draw title
         title_surface = self.font_title.render("Backpack Inventory", True, (255, 255, 255))
