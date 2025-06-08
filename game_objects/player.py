@@ -2,6 +2,7 @@ import pygame
 from game_objects.seed import Seed
 import random
 from game_objects.soil_upgrade import SoilUpgrade
+from game_helpers.json_loader import load_json_file
 
 class Player:
     """
@@ -18,16 +19,23 @@ class Player:
         self.backpack_upgrades: list[SoilUpgrade] = []
         self.max_backpack_size = 20
         self.max_upgrade_capacity = 5
-        #coins
         self.coins = initial_coins
 
-        for i in range(initial_seeds_count):
-            seed = Seed(0,0 , 'assets/seed.png', 'Basic Seed', (50,50), 10)
+        #loading Seeds
+        seed_data = load_json_file('seed_list.json')
+        for i in range(int(initial_seeds_count)):
+            seed = Seed.load_seed(seed_data['Basic_Seed'])
             self.backpack_seeds.append(seed)
 
+        #loading upgrades
+        upgrades_data = load_json_file('upgrades_list.json')
         for i in range(inital_upgrades):
-            upgrade = SoilUpgrade(0,0 , 'assets/watering_can.png', 'Watering Can', (60,60), 'multiplier_boost', 1)
+            upgrade = SoilUpgrade.load_upgrades(upgrades_data['Watering_Can'])
             self.backpack_upgrades.append(upgrade)
+
+        # for i in range(inital_upgrades):
+        #     upgrade = SoilUpgrade(0,0 , 'assets/upgrades/watering_can.png', 'Watering Can', (60,60), 'multiplier_boost', 1)
+        #     self.backpack_upgrades.append(upgrade)
 
 
     def add_seed(self, seed:Seed):

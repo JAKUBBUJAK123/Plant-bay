@@ -3,7 +3,7 @@ import pygame
 class SoilUpgrade:
     """
     Class to handle soil upgrades in a game."""
-    def __init__(self , x , y, image_path:str, name , target_size = (60,60) ,description="simple 2x multiplier", upgrade_effect = "multiplier_boost", effect_value = 1):
+    def __init__(self , x , y, image_path:str, name , target_size = (50,50) ,description="simple 2x multiplier", upgrade_effect = "multiplier_boost", effect_value = 1):
         """
         Initializes a SoilUpgrade object.
 
@@ -31,6 +31,20 @@ class SoilUpgrade:
         self.popup_font = pygame.font.Font("assets/fonts/pixelFont.ttf", 14)
 
     
+    @classmethod
+    def load_upgrades(cls ,data:dict , x =0 , y =0):
+        return cls(
+            x,
+            y,
+            data['image'],
+            data['name'],
+            data['size'],
+            data['description'],
+            data['upgrade_effect'],
+            data['effect_value']
+        )
+
+
     def draw(self, screen:pygame.Surface):
         """
         Draws the upgrade image on the given surface.

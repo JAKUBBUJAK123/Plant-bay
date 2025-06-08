@@ -70,7 +70,7 @@ class GameRoundManager:
                     if not soil.is_planted:
                         dropped_on_target = True
                         soil.plant_seed(dropped_item)
-                        soil.set_image('assets/planted_soil.png')
+                        soil.set_image('assets/soils/planted_soil.png')
                         soil.spawn_particles(20, (50, 168, 82 , 180))
                         self.game_manager.seeds_in_hand.remove(dropped_item)
                         soil.start_shaking(duration=200, intensity=10)

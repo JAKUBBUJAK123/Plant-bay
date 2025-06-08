@@ -6,6 +6,7 @@ import random
 from game_objects.soil_upgrade import SoilUpgrade
 from game_helpers.tilemap_generator import TilemapGenerator
 from tilesets.background_tileset import TILE_SIZE, Shop_tiles, SHOP_MAP
+from game_helpers.json_loader import load_json_file
 
 class ShopScene:
     """Represents the Shop scene of the game.
@@ -32,8 +33,8 @@ class ShopScene:
 
         #--- Shop items available---
         self.available_shop_items = {
-            "seed": {"class": Seed, "image": "assets/seed.png", "base_value": 10, "price_multiplier": 3},
-            "watering_can": {"class": SoilUpgrade, "image": "assets/watering_can.png", "name": "Watering Can", "effect_value": 1, "base_price": 75}
+            "seed": {"class": Seed, "image": "assets/seeds/seed.png", "base_value": 10, "price_multiplier": 3},
+            "watering_can": {"class": SoilUpgrade, "image": "assets/upgrades/watering_can.png", "name": "Watering Can", "effect_value": 1, "base_price": 75}
         }
 
         #--Shop UI---
@@ -54,34 +55,26 @@ class ShopScene:
                              ((self.num_product_slots - 1) * x_padding)
         start_x = (self.screen.get_width() - total_width_needed) // 2
 
-        for i in range(self.num_product_slots):
-            item_type = random.choice(list(self.available_shop_items.keys()))
-            item_info = self.available_shop_items[item_type]
+        #load products
+        all_seeds = load_json_file('seed_list.json')
+        all_upgrades = load_json_file('upgrades_list.json')
 
+        shop_items = []
+        for seed_data in all_seeds.values():
+            shop_items.append(('seed', seed_data))
+        for upgrade_data in all_upgrades.values():
+            shop_items.append(('upgrade', upgrade_data))
+
+        chosen_items = random.choices(shop_items, k=self.num_product_slots)
+
+        for i, (item_type, item_data) in enumerate(chosen_items):
             item_x = start_x + (i * (self.shop_item_size[0] + x_padding))
-
             if item_type == "seed":
-                value = random.randint(item_info["base_value"], item_info["base_value"] * 3)
-                price = value * item_info["price_multiplier"]
-                product = Seed(
-                    item_x, seed_y_start,
-                    item_info["image"],
-                    f"Basic Seed", # Name based on value
-                    target_size=self.shop_item_size,
-                    value=value
-                )
-                product.price = price
-            elif item_type == "watering_can":
-                price = item_info["base_price"]
-                product = SoilUpgrade(
-                    item_x, seed_y_start ,
-                    item_info["image"],
-                    item_info["name"],
-                    target_size=self.shop_item_size,
-                    upgrade_effect='multiplier_boost',
-                    effect_value=item_info['effect_value']
-                )
-                product.price = price # Add price attribute to upgrade object
+                product = Seed.load_seed(item_data, x=item_x, y=seed_y_start)
+                product.price = product.value * 3
+            elif item_type == "upgrade":
+                product = SoilUpgrade.load_upgrades(item_data, x=item_x, y=seed_y_start)
+                product.price = 75
 
             self.products_on_display.append(product)
 
@@ -98,13 +91,13 @@ class ShopScene:
                             # Add to backpack depending on type
                             if isinstance(product_on_display, Seed):
                                 self.player.add_seed(
-                                    Seed(0, 0, product_on_display.image_path, product_on_display.name, value=product_on_display.value)
+                                    Seed(0, 0, product_on_display.image_path, product_on_display.name, value=product_on_display.value ,description=product_on_display.description)
                                 )
                             elif isinstance(product_on_display, SoilUpgrade):
                                 self.player.add_upgrade(
                                     SoilUpgrade(0, 0, product_on_display.image_path, product_on_display.name,
                                                 upgrade_effect=product_on_display.upgrade_effect,
-                                                effect_value=product_on_display.effect_value)
+                                                effect_value=product_on_display.effect_value ,description=product_on_display.description)
                                 )
                             print(f"Bought {product_on_display.name} for {product_on_display.price} coins.")
                             self.products_on_display.pop(i) # Remove item from shop display

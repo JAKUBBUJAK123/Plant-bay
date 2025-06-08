@@ -20,7 +20,7 @@ class GameInitializer:
 
         for i in range(self.game_manager.round_manager.NUM_SOILS):
             x = start_x + (i * (SOIL_SIZE + SOIL_PADDING))
-            soil = Soil(x, plot_y, SOIL_SIZE, "assets/soil.png", SOIL_DEFAULT_COLOR)
+            soil = Soil(x, plot_y, SOIL_SIZE, "assets/soils/soil.png", SOIL_DEFAULT_COLOR)
             self.game_manager.soils.append(soil)
 
     def initialize_ui_elements(self):

@@ -32,6 +32,19 @@ class Seed:
 
         self.is_hovered = False
 
+
+    @classmethod
+    def load_seed(cls, data: dict, x: int = 0, y: int = 0):
+        return cls(
+            x,
+            y,
+            data['image'],
+            data['name'],
+            data['size'],
+            data['value'],
+            data['description'],
+        )
+
     def draw(self, screen: pygame.Surface):
         """
         Draws the seed using its image asset with its name on the given Pygame screen.
