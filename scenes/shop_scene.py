@@ -72,10 +72,12 @@ class ShopScene:
             if item_type == "seed":
                 product = Seed.load_seed(item_data, x=item_x, y=seed_y_start)
                 product.price = product.value * 3
+                
             elif item_type == "upgrade":
                 product = SoilUpgrade.load_upgrades(item_data, x=item_x, y=seed_y_start)
                 product.price = 75
 
+            product.start_shaking(100 , 5)
             self.products_on_display.append(product)
 
     def handle_event(self, event: pygame.event.Event):
@@ -84,11 +86,9 @@ class ShopScene:
                 mouse_pos = event.pos
                 #--- Handle Buying Products ---
                 for i, product_on_display in enumerate(self.products_on_display):
-                    # Check if the "Buy" button for this product was clicked
                     if hasattr(product_on_display, "buy_button_rect") and product_on_display.buy_button_rect.collidepoint(mouse_pos):
                         if self.player.get_coins() >= product_on_display.price:
                             self.player.remove_coins(product_on_display.price)
-                            # Add to backpack depending on type
                             if isinstance(product_on_display, Seed):
                                 self.player.add_seed(
                                     Seed(0, 0, product_on_display.image_path, product_on_display.name, value=product_on_display.value ,description=product_on_display.description)
@@ -100,7 +100,7 @@ class ShopScene:
                                                 effect_value=product_on_display.effect_value ,description=product_on_display.description)
                                 )
                             print(f"Bought {product_on_display.name} for {product_on_display.price} coins.")
-                            self.products_on_display.pop(i) # Remove item from shop display
+                            self.products_on_display.pop(i)
                         else:
                             print("Not enough coins!")
                         break
@@ -161,7 +161,7 @@ class ShopScene:
         self.roll_button.draw(self.screen)
         self.next_round_button.draw(self.screen)
 
-    def update(self):
+    def update(self , dt):
         buttons = [self.roll_button, self.next_round_button]
         mouse_pos = pygame.mouse.get_pos()
         for button in buttons:
@@ -170,4 +170,8 @@ class ShopScene:
         # --- Item Popup ---
         for product in self.products_on_display:
             product.update_hoover_screen(mouse_pos)
+            product.update(dt)
             
+        #--- buttons ---
+        self.roll_button.update(dt)
+        self.next_round_button.update(dt)

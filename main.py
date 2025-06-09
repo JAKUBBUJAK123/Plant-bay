@@ -10,6 +10,7 @@ from scenes.shop_scene import ShopScene
 from scenes.inventory_scene import InventoryScene
 from scenes.playing_scene import PlayingScene 
 from scenes.lose_scene import LoseScene 
+from scenes.round_won_scene import RoundWonScene
 
 # Import game logic and initialization helpers
 from game_helpers.game_logic import GameRoundManager
@@ -26,11 +27,13 @@ BUTTON_COLOR = (50, 150, 50)
 BUTTON_HOVER_COLOR = (70, 170, 70)
 
 
+COINS_PER_ROUND = 50
 #--- Game State Constants---
 GAME_STATE_PLAYING = "PLAYING"
 GAME_STATE_SHOP = "SHOP"
 GAME_STATE_LOSE = "LOSE"
 GAME_STATE_INVENTORY = "INVENTORY"
+GAME_STATE_ROUND_WON = "ROUND WON"
 
 
 class Game:
@@ -47,6 +50,7 @@ class Game:
         self.GAME_STATE_SHOP = GAME_STATE_SHOP
         self.GAME_STATE_LOSE = GAME_STATE_LOSE
         self.GAME_STATE_INVENTORY = GAME_STATE_INVENTORY
+        self.GAME_STATE_ROUND_WON = GAME_STATE_ROUND_WON
     
         # --- Fonts ---
         self.font_welcome = pygame.font.Font(None, 36)
@@ -59,6 +63,7 @@ class Game:
         self.score_goal = 10
         self.predicted_score = 0
         self.round_number = 1
+        self.coins_per_round = COINS_PER_ROUND
 
         # ---Player Objects ---
         self.player = Player(initial_seeds_count=10, initial_coins=100, inital_upgrades=1)
@@ -96,6 +101,7 @@ class Game:
         self.inventory_scene = InventoryScene(self.screen, self.player, self)
         self.playing_scene = PlayingScene(self.screen, self)
         self.lose_scene = LoseScene(self.screen, self)
+        self.round_won_scene = RoundWonScene(self , self.screen)
 
         # --- Helper Managers ---
         self.game_initializer = GameInitializer(self)
@@ -134,6 +140,8 @@ class Game:
                 self.inventory_scene.handle_event(event)
             elif self.current_game_state == self.GAME_STATE_LOSE:
                 self.lose_scene.handle_event(event)
+            elif self.current_game_state == self.GAME_STATE_ROUND_WON:
+                self.round_won_scene.handle_event(event)
 
             # --- Unified Drag & Drop Handling---
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -186,18 +194,21 @@ class Game:
     def update(self , dt):
         """Updates game logic based on the current game state."""
         if self.current_game_state == self.GAME_STATE_PLAYING:
-            self.playing_scene.update()
+            self.playing_scene.update(dt)
             self.round_manager.calculate_predicted_score()
             for soil in self.soils:
                 soil.update(dt)
 
         elif self.current_game_state == self.GAME_STATE_SHOP:
-            self.shop_scene.update() 
+            self.shop_scene.update(dt) 
 
         elif self.current_game_state == self.GAME_STATE_INVENTORY:
             self.inventory_scene.update()
         elif self.current_game_state == self.GAME_STATE_LOSE:
             self.lose_scene.update()
+        elif self.current_game_state == self.GAME_STATE_ROUND_WON:
+            self.round_won_scene.update(dt)
+
         # --- Dragging Logic ---
         if self.dragging_item and self.dragged_item is not None and self.dragged_item_target_pos is not None:
             # Lerp position
@@ -230,6 +241,9 @@ class Game:
 
         elif self.current_game_state == self.GAME_STATE_LOSE:
             self.lose_scene.draw()
+
+        elif self.current_game_state == self.GAME_STATE_ROUND_WON:
+            self.round_won_scene.draw()
 
         if self.current_game_state in [self.GAME_STATE_PLAYING, self.GAME_STATE_SHOP ,self.GAME_STATE_INVENTORY]:
             self.backpack_icon_button.draw(self.screen)

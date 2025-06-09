@@ -1,2 +1,3 @@
 .venv
 *.pyc
+.game_mechanics.txt

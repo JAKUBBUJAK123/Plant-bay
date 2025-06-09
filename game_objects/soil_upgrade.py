@@ -1,5 +1,5 @@
 import pygame
-
+import random
 class SoilUpgrade:
     """
     Class to handle soil upgrades in a game."""
@@ -58,8 +58,22 @@ class SoilUpgrade:
         self.draw_popup_pos(screen)
 
     def update(self, dt: int):
-        for soil in self.soils:
-            soil.update(dt)
+        # for soil in self.soils:
+        #     soil.update(dt)
+
+        #Shaking logic
+        if self.is_shaking:
+            self.shake_timer += dt
+            if self.shake_timer >= self.shake_duration:
+                self.is_shaking = False
+                self.shake_offset_x = 0
+                self.shake_offset_y = 0
+                self.rect.topleft = (self.original_x, self.original_y)
+            else:
+                current_intensity = self.shake_intensity * (1 - self.shake_timer / self.shake_duration)
+                self.shake_offset_x = random.uniform(-current_intensity, current_intensity)
+                self.shake_offset_y = random.uniform(-current_intensity, current_intensity)
+                self.rect.topleft = (self.original_x + self.shake_offset_x, self.original_y + self.shake_offset_y)
 
     def update_position(self, new_x, new_y):
         """
@@ -139,3 +153,12 @@ class SoilUpgrade:
             pygame.draw.rect(screen, (100, 100, 100), popup_rect, 1, border_radius=5) 
 
             screen.blit(text_surface, (popup_x + padding, popup_y + padding))
+
+    def start_shaking(self, duration: int, intensity: int):
+        """Starts the shaking effect on the soil."""
+        self.is_shaking = True
+        self.shake_duration = duration
+        self.shake_intensity = intensity
+        self.shake_timer = 0
+        self.shake_offset_x = 0
+        self.shake_offset_y = 0

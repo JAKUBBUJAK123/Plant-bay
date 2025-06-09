@@ -113,9 +113,8 @@ class GameRoundManager:
         if self.game_manager.current_score >= self.game_manager.score_goal:
             print(f"ROUND {self.game_manager.round_number} WON! Score: {self.game_manager.current_score} / Goal: {self.game_manager.score_goal}")
             self.game_manager.player.add_coins(COINS_PER_ROUND)
-            self.game_manager.change_state(self.game_manager.GAME_STATE_SHOP)
-            self.game_manager.shop_scene.generate_products() # Regenerate shop products
-            self.game_manager.current_score = 0 # Reset score for next round
+
+            self.game_manager.change_state(self.game_manager.GAME_STATE_ROUND_WON)
         else:
             print(f"ROUND {self.game_manager.round_number} FAILED. Current Score: {self.game_manager.current_score} / Goal: {self.game_manager.score_goal}")
             self.start_new_round() # Start new round if failed

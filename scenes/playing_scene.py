@@ -33,9 +33,10 @@ class PlayingScene:
             if self.play_hand_button and self.play_hand_button.is_clicked(event.pos):
                 self.game_manager.round_manager.play_hand()
 
-    def update(self):
+    def update(self ,dt):
         mouse_pos = pygame.mouse.get_pos()
         self.play_hand_button.is_hovered = self.play_hand_button.rect.collidepoint(mouse_pos)
+        self.play_hand_button.update(dt)
         for soil in self.game_manager.soils:
             soil.update(self.game_manager.clock.get_time())
 
