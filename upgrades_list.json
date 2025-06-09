@@ -2,7 +2,7 @@
     "Watering_Can" : {
         "name" : "Watering can",
         "image" : "assets/upgrades/watering_can.png",
-        "description" : "2x multiplier on soil",
+        "description" : "+ 1x multiplier on soil",
         "size" : [50, 50],
         "upgrade_effect" : "multiplier_boost",
         "effect_value" : 1

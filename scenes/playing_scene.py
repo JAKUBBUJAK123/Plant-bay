@@ -43,6 +43,9 @@ class PlayingScene:
         for seed in self.game_manager.seeds_in_hand:
             seed.update_hoover_screen(mouse_pos)
 
+        for soil in self.game_manager.soils:
+            soil.update_hoover_screen(mouse_pos)
+
 
     def draw(self):
         """Draws elements specific to the PLAYING state."""

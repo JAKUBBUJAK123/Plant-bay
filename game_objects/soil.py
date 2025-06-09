@@ -18,6 +18,8 @@ class Soil:
         self.is_planted = False
         self.planted_seed = None
         self.multiplier = 1.0
+        self.is_upgraded = False
+        self.upgraded_color = None
 
         #Shaking properties
         self.is_shaking = False
@@ -32,9 +34,20 @@ class Soil:
         #Particles
         self.particle_system = ParticleSystem()
 
+        #text popup
+        self.popup_font = pygame.font.Font("assets/fonts/pixelFont.ttf", 14)
+        self.is_hovered = False
+        
 
     def draw(self, screen: pygame.Surface):
         screen.blit(self.image, self.rect)
+        self.draw_popup_pos(screen)
+
+        if self.is_upgraded and self.upgraded_color:
+            overlay = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+            overlay.fill((*self.upgraded_color, 100))
+            screen.blit(overlay, self.rect.topleft)
+
         self.particle_system.draw(screen)
 
     def update(self, dt: int):
@@ -93,3 +106,30 @@ class Soil:
         self.shake_offset_x = 0
         self.shake_offset_y = 0
         
+    def update_hoover_screen(self , mouse_pos):
+        self.is_hovered = self.rect.collidepoint(mouse_pos)
+
+    def draw_popup_pos(self , screen):
+        if self.is_hovered:
+            
+            text_surface = self.popup_font.render(f'{self.multiplier}X multi', True, (255, 255, 255))
+
+            
+            padding = 5
+            popup_width = text_surface.get_width() + 2 * padding
+            popup_height = text_surface.get_height() + 2 * padding
+
+            
+            popup_x = self.rect.centerx - popup_width // 2
+            popup_y = self.rect.top - popup_height - 5
+
+            if popup_x < 0:
+                popup_x = 0
+            if popup_x + popup_width > screen.get_width():
+                popup_x = screen.get_width() - popup_width
+
+            popup_rect = pygame.Rect(popup_x, popup_y, popup_width, popup_height)
+            pygame.draw.rect(screen, (30, 30, 30), popup_rect, border_radius=5) 
+            pygame.draw.rect(screen, (100, 100, 100), popup_rect, 1, border_radius=5) 
+
+            screen.blit(text_surface, (popup_x + padding, popup_y + padding))

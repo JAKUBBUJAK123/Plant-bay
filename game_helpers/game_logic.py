@@ -138,7 +138,6 @@ class GameRoundManager:
     def start_new_round(self):
         """Resets the game state for a new round of play."""
         for soil in self.game_manager.soils:
-            # IMPORTANT: soil.multiplier is NOT reset here if you want upgrades to persist!
             soil.reset_soil() # This resets planted seed and color only
 
         # Return any seeds that might still be in hand (e.g., from previous failed round)
