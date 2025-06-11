@@ -6,5 +6,45 @@
         "size" : [50, 50],
         "upgrade_effect" : "multiplier_boost",
         "effect_value" : 1
-    }
+    },
+        "Rune" : {
+        "name" : "Rune",
+        "image" : "assets/upgrades/rune.png",
+        "description" : "Chance to change seed into another one",
+        "size" : [50, 50],
+        "upgrade_effect" : "rune_change",
+        "effect_value" : 1
+    },
+        "Clover" : {
+        "name" : "Clover",
+        "image" : "assets/upgrades/clower.png",
+        "description" : "30% chance to not consume seed, 30% to get 10 gold",
+        "size" : [50, 50],
+        "upgrade_effect" : "clover",
+        "effect_value" : 1
+    },
+        "Crop_Grow" : {
+        "name" : "Crop Grow",
+        "image" : "assets/upgrades/crop_grow.png",
+        "description" : "Increases crop grow",
+        "size" : [50, 50],
+        "upgrade_effect" : "multiplier_boost",
+        "effect_value" : 1
+    },
+        "Blood" : {
+        "name" : "Blood",
+        "image" : "assets/upgrades/blood.png",
+        "description" : "10x mult, 30% chance to 0x",
+        "size" : [50, 50],
+        "upgrade_effect" : "evil_soil",
+        "effect_value" : 1
+    },
+        "Grail" : {
+        "name" : "Grail",
+        "image" : "assets/upgrades/grail.png",
+        "description" : "x3 mult for left and right soil",
+        "size" : [50, 50],
+        "upgrade_effect" : "holy_soil",
+        "effect_value" : 1}
+    
 }

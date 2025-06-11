@@ -3,7 +3,7 @@
     {
     "name": "Sunflower Seed",
     "image": "assets/seeds/sunflower_seed.png",
-    "description": "Gives 20 points",
+    "description": "Sunflower seed-gives 20 points",
     "value": 20,
     "size": [50, 50]
   },
@@ -11,8 +11,29 @@
   {
     "name": "Basic Seed",
     "image": "assets/seeds/seed.png",
-    "description": "Gives 10 points",
+    "description": "Basic seed-gives 10 points",
     "value": 10,
     "size": [50, 50]
+  },
+  "Potato_Seed": {
+    "name": "Potato Seed",
+    "image" : "assets/seeds/potato_seed.png",
+    "description" : "Potato seed-gives 20 points",
+    "value" : 20,
+    "size" : [50,50]
+  },
+    "Beetroot_Seed": {
+    "name": "Beetroot Seed",
+    "image" : "assets/seeds/beetroot_seed.png",
+    "description" : "Beetroot seed-gives 30 points",
+    "value" : 30,
+    "size" : [50,50]
+  },
+    "Rose_seed": {
+    "name": "Rose Seed",
+    "image" : "assets/seeds/rose_seed.png",
+    "description" : "Rose seed-gives 50 points",
+    "value" : 50,
+    "size" : [50,50]
   }
 }

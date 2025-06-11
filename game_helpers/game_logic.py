@@ -2,6 +2,7 @@
 import pygame
 from game_objects.seed import Seed
 from game_objects.soil_upgrade import SoilUpgrade
+import random
 
 # Constants used in game logic
 DEFAULT_SEED_VALUE = 10
@@ -72,20 +73,33 @@ class GameRoundManager:
                         soil.plant_seed(dropped_item)
                         soil.set_image('assets/soils/planted_soil.png')
                         soil.spawn_particles(20, (50, 168, 82 , 180))
-                        self.game_manager.seeds_in_hand.remove(dropped_item)
-                        soil.start_shaking(duration=200, intensity=10)
-                        print(f"Planted {dropped_item.name} on soil (multiplier x{soil.multiplier})")
+
+                        #clover soil
+                        if soil.is_clover:
+                            rand = random.random()
+                            if rand < 0.3:
+                                print('seed not consumed')
+                                dropped_item.reset_position()
+                            elif rand < 0.6:
+                                self.game_manager.player.coins += 10
+                                dropped_item.reset_position()
+
+                        #normal soil
+                        else:
+                            self.game_manager.seeds_in_hand.remove(dropped_item)
+                            soil.start_shaking(duration=200, intensity=10)
+                            dropped_item.reset_position()
                     else:
                         print("Soil is already planted! Cannot plant seed.")
+                        pass
                 elif isinstance(dropped_item, SoilUpgrade):
                     dropped_on_target = True
-                    dropped_item.apply_effect(soil)
+                    dropped_item.apply_effect(soil,self.game_manager.soils)
                     soil.spawn_particles(12, (0, 120, 255, 180))
                     self.game_manager.player.backpack_upgrades.remove(dropped_item)
                     if dropped_item in self.game_manager.upgrades_in_hand:
                         self.game_manager.upgrades_in_hand.remove(dropped_item)
                         soil.start_shaking(duration=200, intensity=10)
-                    print(f"Used {dropped_item.name} on soil (multiplier now x{soil.multiplier})")
                 break
 
         if not dropped_on_target:
@@ -98,9 +112,16 @@ class GameRoundManager:
 
 
         for soil in self.game_manager.soils:
+            multipler = soil.multiplier
             if soil.is_planted and soil.planted_seed is not None:
-                self.game_manager.current_score += soil.planted_seed.value * soil.multiplier
-                print(f"  Scored {soil.planted_seed.value * soil.multiplier} from {soil.planted_seed.name} on soil (x{soil.multiplier})")
+                #---Evil soil ---
+                if getattr(soil, 'is_evil' , False):
+                    if random.random() < 0.3:
+                        multipler = 0
+                    else:
+                        multipler = soil.multiplier
+
+                self.game_manager.current_score += soil.planted_seed.value * multipler
                 soil.reset_soil() # Reset soil (clears planted seed and color) after scoring
 
         # Any seeds remaining in hand were not planted, return them to backpack
@@ -111,12 +132,10 @@ class GameRoundManager:
         self.game_manager.seeds_in_hand.clear() # Clear hand after processing
 
         if self.game_manager.current_score >= self.game_manager.score_goal:
-            print(f"ROUND {self.game_manager.round_number} WON! Score: {self.game_manager.current_score} / Goal: {self.game_manager.score_goal}")
             self.game_manager.player.add_coins(COINS_PER_ROUND)
 
             self.game_manager.change_state(self.game_manager.GAME_STATE_ROUND_WON)
         else:
-            print(f"ROUND {self.game_manager.round_number} FAILED. Current Score: {self.game_manager.current_score} / Goal: {self.game_manager.score_goal}")
             self.start_new_round() # Start new round if failed
 
         if (
@@ -124,7 +143,6 @@ class GameRoundManager:
         len(self.game_manager.player.backpack_seeds) == 0 and
         len(self.game_manager.seeds_in_hand) == 0
     ):
-            print("No seeds left and goal not reached. You lose!")
             self.game_manager.change_state(self.game_manager.GAME_STATE_LOSE)
             return
 

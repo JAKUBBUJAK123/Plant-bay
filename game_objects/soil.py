@@ -20,6 +20,9 @@ class Soil:
         self.multiplier = 1.0
         self.is_upgraded = False
         self.upgraded_color = None
+        self.is_evil = False
+        self.is_clover = False
+        self.is_holy = False
 
         #Shaking properties
         self.is_shaking = False

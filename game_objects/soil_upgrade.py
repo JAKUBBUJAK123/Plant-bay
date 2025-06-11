@@ -1,5 +1,6 @@
 import pygame
 import random
+from game_objects.soil import Soil
 class SoilUpgrade:
     """
     Class to handle soil upgrades in a game."""
@@ -100,7 +101,7 @@ class SoilUpgrade:
         return self.rect.collidepoint(mouse_pos)
     
 
-    def apply_effect(self, target_soil):
+    def apply_effect(self, target_soil:Soil , soils_list=None):
         """
         Applies the upgrade effect to the target soil.
 
@@ -112,18 +113,46 @@ class SoilUpgrade:
             target_soil.is_upgraded = True
             if target_soil.upgraded_color:
                 r, g, b = target_soil.upgraded_color
-                darken_factor = 0.8  # 0.8 means 20% darker each time
+                darken_factor = 0.8 
                 new_color = (
                     max(0, int(r)),
                     max(0, int(g)),
                     max(0, int(b * darken_factor))
                 )
                 target_soil.upgraded_color = new_color
+                pass
             else:
                 target_soil.upgraded_color = (66, 135, 245) 
 
-        else:
-            print('Unknown upgrade effect:', self.upgrade_effect)
+        elif self.upgrade_effect == "evil_soil":
+            target_soil.is_evil = True
+            target_soil.multiplier = 10
+            target_soil.is_upgraded = True
+            target_soil.upgraded_color = (120, 0, 0)
+            pass
+
+        elif self.upgrade_effect == "clover":
+            target_soil.is_upgraded = True
+            target_soil.is_clover = True
+            target_soil.upgraded_color = (0,200,0)
+
+        elif self.upgrade_effect == "holy_soil":
+            target_soil.is_holy = True
+            target_soil.is_upgraded = True
+            target_soil.upgraded_color = (229, 232, 153)
+            idx = soils_list.index(target_soil)
+            #Left
+            if idx > 0:
+                left_soil = soils_list[idx - 1]
+                left_soil.multiplier *= 3
+            # Right neighbor
+            if idx < len(soils_list) - 1:
+                right_soil = soils_list[idx + 1]
+                right_soil.multiplier *= 3
+        
+        elif self.upgrade_effect == "rune_change":
+            target_soil.is_upgraded = True
+            target_soil.upgraded_color = (232, 147, 35)
 
 
     def update_hoover_screen(self , mouse_pos):

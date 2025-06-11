@@ -30,7 +30,7 @@ class Player:
         #loading upgrades
         upgrades_data = load_json_file('upgrades_list.json')
         for i in range(inital_upgrades):
-            upgrade = SoilUpgrade.load_upgrades(upgrades_data['Watering_Can'])
+            upgrade = SoilUpgrade.load_upgrades(upgrades_data['Rune'])
             self.backpack_upgrades.append(upgrade)
 
         # for i in range(inital_upgrades):

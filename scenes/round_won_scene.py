@@ -22,7 +22,7 @@ class RoundWonScene():
 
         # Popup background (for fade-in)
         self.overlay_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        self.overlay_color = (0, 0, 0, 0) # Start fully transparent
+        self.overlay_color = (61, 189, 42, 0) # Start fully transparent
 
         # Animation properties
         self.fade_speed = 3 # Alpha units per frame (adjust for slower/faster)
@@ -91,6 +91,9 @@ class RoundWonScene():
 
     def draw(self):
         """Draws the round won popup."""
+        self.overlay_surface.fill(self.overlay_color)
+        self.screen.blit(self.overlay_surface, (0, 0))
+        
         pygame.draw.rect(self.screen, (30, 30, 50), self.popup_rect, border_radius=10)
         pygame.draw.rect(self.screen, (60, 60, 90), self.popup_rect, 3, border_radius=10) 
 
