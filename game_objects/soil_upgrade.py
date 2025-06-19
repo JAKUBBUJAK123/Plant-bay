@@ -109,27 +109,15 @@ class SoilUpgrade:
             target_soil (Soil): The soil object to apply the effect to.
         """
         if self.upgrade_effect == "multiplier_boost":
-            target_soil.multiplier += self.effect_value
+            target_soil.multiplier *= self.effect_value
             target_soil.is_upgraded = True
-            if target_soil.upgraded_color:
-                r, g, b = target_soil.upgraded_color
-                darken_factor = 0.8 
-                new_color = (
-                    max(0, int(r)),
-                    max(0, int(g)),
-                    max(0, int(b * darken_factor))
-                )
-                target_soil.upgraded_color = new_color
-                pass
-            else:
-                target_soil.upgraded_color = (66, 135, 245) 
+            target_soil.upgraded_color = (66, 135, 245) 
 
         elif self.upgrade_effect == "evil_soil":
             target_soil.is_evil = True
-            target_soil.multiplier = 10
+            target_soil.multiplier *= self.effect_value
             target_soil.is_upgraded = True
             target_soil.upgraded_color = (120, 0, 0)
-            pass
 
         elif self.upgrade_effect == "clover":
             target_soil.is_upgraded = True
@@ -144,16 +132,36 @@ class SoilUpgrade:
             #Left
             if idx > 0:
                 left_soil = soils_list[idx - 1]
-                left_soil.multiplier *= 3
+                left_soil.multiplier *= self.effect_value
             # Right neighbor
             if idx < len(soils_list) - 1:
                 right_soil = soils_list[idx + 1]
-                right_soil.multiplier *= 3
+                right_soil.multiplier *= self.effect_value
         
         elif self.upgrade_effect == "rune_change":
             target_soil.is_upgraded = True
             target_soil.upgraded_color = (232, 147, 35)
 
+        elif self.upgrade_effect == "even_soil":
+            target_soil.is_upgraded = True
+            target_soil.upgraded_color = (240, 137, 219)
+            for index, soil in enumerate(soils_list):
+                if index %2 ==0:
+                    soil.multiplier *=self.effect_value
+
+        elif self.upgrade_effect == "odd_soil":
+            target_soil.is_upgraded = True
+            target_soil.upgraded_color = (226, 255, 153)
+            for index, soil in enumerate(soils_list):
+                if index %2 !=0:
+                    soil.multiplier *=self.effect_value
+
+        elif self.upgrade_effect == "remove_upgrade":
+            target_soil.is_upgraded = False
+            target_soil.is_evil = False
+            target_soil.is_clover = False
+            target_soil.is_holy = False
+            target_soil.upgraded_color = None
 
     def update_hoover_screen(self , mouse_pos):
         self.is_hovered = self.rect.collidepoint(mouse_pos)
@@ -161,14 +169,15 @@ class SoilUpgrade:
     def draw_popup_pos(self , screen):
         if self.is_hovered:
             
-            text_surface = self.popup_font.render(self.description, True, (255, 255, 255))
+            name_surface = self.popup_font.render(self.name, True, (255, 255, 0))
+            desc_surface = self.popup_font.render(self.description, True, (255, 255, 255))
 
-            
             padding = 5
-            popup_width = text_surface.get_width() + 2 * padding
-            popup_height = text_surface.get_height() + 2 * padding
+            spacing = 2 
 
-            
+            popup_width = max(name_surface.get_width(), desc_surface.get_width()) + 2 * padding
+            popup_height = name_surface.get_height() + spacing + desc_surface.get_height() + 2 * padding
+
             popup_x = self.rect.centerx - popup_width // 2
             popup_y = self.rect.top - popup_height - 5
 
@@ -178,10 +187,11 @@ class SoilUpgrade:
                 popup_x = screen.get_width() - popup_width
 
             popup_rect = pygame.Rect(popup_x, popup_y, popup_width, popup_height)
-            pygame.draw.rect(screen, (30, 30, 30), popup_rect, border_radius=5) 
-            pygame.draw.rect(screen, (100, 100, 100), popup_rect, 1, border_radius=5) 
+            pygame.draw.rect(screen, (30, 30, 30), popup_rect, border_radius=5)
+            pygame.draw.rect(screen, (100, 100, 100), popup_rect, 1, border_radius=5)
 
-            screen.blit(text_surface, (popup_x + padding, popup_y + padding))
+            screen.blit(name_surface, (popup_x + padding, popup_y + padding))
+            screen.blit(desc_surface, (popup_x + padding, popup_y + padding + name_surface.get_height() + spacing))
 
     def start_shaking(self, duration: int, intensity: int):
         """Starts the shaking effect on the soil."""

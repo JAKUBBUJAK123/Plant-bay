@@ -2,7 +2,7 @@
     "Watering_Can" : {
         "name" : "Watering can",
         "image" : "assets/upgrades/watering_can.png",
-        "description" : "+ 1x multiplier on soil",
+        "description" : "3x multiplier on soil",
         "size" : [50, 50],
         "upgrade_effect" : "multiplier_boost",
         "effect_value" : 1
@@ -29,7 +29,7 @@
         "description" : "Increases crop grow",
         "size" : [50, 50],
         "upgrade_effect" : "multiplier_boost",
-        "effect_value" : 1
+        "effect_value" : 3
     },
         "Blood" : {
         "name" : "Blood",
@@ -37,7 +37,7 @@
         "description" : "10x mult, 30% chance to 0x",
         "size" : [50, 50],
         "upgrade_effect" : "evil_soil",
-        "effect_value" : 1
+        "effect_value" : 10
     },
         "Grail" : {
         "name" : "Grail",
@@ -45,6 +45,31 @@
         "description" : "x3 mult for left and right soil",
         "size" : [50, 50],
         "upgrade_effect" : "holy_soil",
-        "effect_value" : 1}
+        "effect_value" : 3
+    },
+        "Even_Bottle" : {
+        "name" : "Even Bottle",
+        "image" : "assets/upgrades/even_bottle.png",
+        "description" : "x3 mult for all even soils",
+        "size" : [50, 50],
+        "upgrade_effect" : "even_soil",
+        "effect_value" : 3
+    },
+        "Odd_Bottle" : {
+        "name" : "Odd Bottle",
+        "image" : "assets/upgrades/odd_bottle.png",
+        "description" : "x3 mult for all odd soils",
+        "size" : [50, 50],
+        "upgrade_effect" : "odd_soil",
+        "effect_value" : 3
+    },
+        "Hoe" : {
+        "name" : "Hoe",
+        "image" : "assets/upgrades/hoe.png",
+        "description" : "Removes upgrade from the soil",
+        "size" : [50, 50],
+        "upgrade_effect" : "remove_upgrade",
+        "effect_value" : 1
+    }
     
 }

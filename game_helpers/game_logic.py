@@ -93,6 +93,10 @@ class GameRoundManager:
                         print("Soil is already planted! Cannot plant seed.")
                         pass
                 elif isinstance(dropped_item, SoilUpgrade):
+                    if getattr(soil, "is_upgraded" , False) and not getattr(SoilUpgrade, 'upgrade_effect' , 'remove_upgrade'):
+                        print('cant stack upgrades')
+                        dropped_item.reset_position()
+                        return
                     dropped_on_target = True
                     dropped_item.apply_effect(soil,self.game_manager.soils)
                     soil.spawn_particles(12, (0, 120, 255, 180))

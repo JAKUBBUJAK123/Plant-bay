@@ -95,14 +95,15 @@ class Seed:
     def draw_popup_pos(self , screen):
         if self.is_hovered:
             
-            text_surface = self.popup_font.render(self.description, True, (255, 255, 255))
+            name_surface = self.popup_font.render(self.name, True, (255, 255, 0))
+            desc_surface = self.popup_font.render(self.description, True, (255, 255, 255))
 
-            
             padding = 5
-            popup_width = text_surface.get_width() + 2 * padding
-            popup_height = text_surface.get_height() + 2 * padding
+            spacing = 2 
 
-            
+            popup_width = max(name_surface.get_width(), desc_surface.get_width()) + 2 * padding
+            popup_height = name_surface.get_height() + spacing + desc_surface.get_height() + 2 * padding
+
             popup_x = self.rect.centerx - popup_width // 2
             popup_y = self.rect.top - popup_height - 5
 
@@ -112,10 +113,11 @@ class Seed:
                 popup_x = screen.get_width() - popup_width
 
             popup_rect = pygame.Rect(popup_x, popup_y, popup_width, popup_height)
-            pygame.draw.rect(screen, (30, 30, 30), popup_rect, border_radius=5) 
-            pygame.draw.rect(screen, (100, 100, 100), popup_rect, 1, border_radius=5) 
+            pygame.draw.rect(screen, (30, 30, 30), popup_rect, border_radius=5)
+            pygame.draw.rect(screen, (100, 100, 100), popup_rect, 1, border_radius=5)
 
-            screen.blit(text_surface, (popup_x + padding, popup_y + padding))
+            screen.blit(name_surface, (popup_x + padding, popup_y + padding))
+            screen.blit(desc_surface, (popup_x + padding, popup_y + padding + name_surface.get_height() + spacing))
     
 
     def start_shaking(self, duration: int, intensity: int):

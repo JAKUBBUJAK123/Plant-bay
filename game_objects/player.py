@@ -30,12 +30,15 @@ class Player:
         #loading upgrades
         upgrades_data = load_json_file('upgrades_list.json')
         for i in range(inital_upgrades):
-            upgrade = SoilUpgrade.load_upgrades(upgrades_data['Rune'])
-            self.backpack_upgrades.append(upgrade)
+            upgrade1 = SoilUpgrade.load_upgrades(upgrades_data['Odd_Bottle'])
+            self.backpack_upgrades.append(upgrade1)
+            upgrade2 = SoilUpgrade.load_upgrades(upgrades_data['Even_Bottle'])
+            self.backpack_upgrades.append(upgrade2)
+            upgrade3 = SoilUpgrade.load_upgrades(upgrades_data['Blood'])
+            self.backpack_upgrades.append(upgrade3)
+            upgrade4 = SoilUpgrade.load_upgrades(upgrades_data['Hoe'])
+            self.backpack_upgrades.append(upgrade4)
 
-        # for i in range(inital_upgrades):
-        #     upgrade = SoilUpgrade(0,0 , 'assets/upgrades/watering_can.png', 'Watering Can', (60,60), 'multiplier_boost', 1)
-        #     self.backpack_upgrades.append(upgrade)
 
 
     def add_seed(self, seed:Seed):
