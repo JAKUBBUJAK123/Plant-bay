@@ -1,39 +1,54 @@
 {
   "Sunflower_Seed" :
     {
-    "name": "Sunflower Seed",
+    "name": "Sunflower Seed: 20 points",
     "image": "assets/seeds/sunflower_seed.png",
-    "description": "Gives 20 points",
+    "description": "After harvest, gives 25 coins",
     "value": 20,
-    "size": [50, 50]
+    "size": [50, 50],
+    "seed_type" : "flower",
+    "on_harvest_effect": {"type": "add_coins", "value": 25},
+    "synergy_effect" : {}
   },
   "Basic_Seed":
   {
-    "name": "Basic Seed",
+    "name": "Basic Seed: 10 points",
     "image": "assets/seeds/seed.png",
-    "description": "Gives 10 points",
+    "description": "+10 points for each adjecent same type seed",
     "value": 10,
-    "size": [50, 50]
+    "size": [50, 50],
+    "seed_type" : "basic",
+    "on_harvest_effect" : {},
+    "synergy_effect": {"type": "adjacent_same_type_value_boost", "value": 10}
   },
   "Potato_Seed": {
-    "name": "Potato Seed",
+    "name": "Potato Seed: 20 points",
     "image" : "assets/seeds/potato_seed.png",
-    "description" : "Gives 20 points",
+    "description" : "30% chance to duplicate on harvest",
     "value" : 20,
-    "size" : [50,50]
+    "size" : [50,50],
+    "seed_type" : "root",
+    "on_harvest_effect" : {"type" : "self_duplicate_chance" , "value" : 0.3},
+    "synergy_effect" : {}
   },
     "Beetroot_Seed": {
     "name": "Beetroot Seed",
     "image" : "assets/seeds/beetroot_seed.png",
     "description" : "Gives 30 points",
     "value" : 30,
-    "size" : [50,50]
+    "size" : [50,50],
+    "seed_type" : "root",
+    "on_harvest_effect" : {},
+    "synergy_effect": {"type": "adjacent_type_value_boost", "target_seed_type": "flower", "bonus_per_match": 15}
   },
-    "Rose_seed": {
-    "name": "Rose Seed",
+    "Rose_Seed": {
+    "name": "Rose Seed: 50 points",
     "image" : "assets/seeds/rose_seed.png",
-    "description" : "Gives 50 points",
+    "description" : "Retriggers 2 times",
     "value" : 50,
-    "size" : [50,50]
+    "size" : [50,50],
+    "seed_type" : "flower",
+    "on_harvest_effect" : {"type": "retrigger", "value": 2},
+    "synergy_effect": {}
   }
 }
