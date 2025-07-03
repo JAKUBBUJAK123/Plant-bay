@@ -24,6 +24,12 @@ class Soil:
         self.is_clover = False
         self.is_holy = False
 
+        self.flat_bonus = 1
+        self.crit_chance = 0.0
+        self.return_chance = 0.0
+
+        self.next_plant_buff: dict | None = None
+
         #Shaking properties
         self.is_shaking = False
         self.shake_duration = 0 
@@ -91,8 +97,63 @@ class Soil:
         self.current_color = self.default_color
 
     def plant_seed(self, seed_object:Seed):
-        self.is_planted = True
-        self.planted_seed  = seed_object
+        if not self.is_planted:
+            self.is_planted = True
+            self.planted_seed  = seed_object
+
+    def harvest_seed(self, player=None) :
+        if self.is_planted and self.planted_seed:
+            base_value = self.planted_seed.value
+            current_value = base_value * self.flat_bonus
+            harvested_value = current_value * self.multiplier
+
+            effect = getattr(self.planted_seed, "on_harvest_effect", {})
+            retrigger_count = 1
+            if effect:
+                if effect.get("type") == "retrigger":
+                    retrigger_count = effect.get("value", 0)
+
+            total_value = 0
+            for i in range(retrigger_count):
+                if effect and effect.get("type") != "retrigger":
+                    if effect.get("type") == "add_coins" and player is not None:
+                        coins_to_add = effect.get("value", 0)
+                        player.add_coins(coins_to_add)
+                    elif effect.get("type") == "self_duplicate_chance" and player is not None:
+                        if random.random() < effect.get("value", 0):
+                            player.add_seed(self.planted_seed)
+                total_value += harvested_value
+
+            return total_value
+        return 0
+    
+    def predict_harvest_value(self):
+        if self.is_planted and self.planted_seed:
+            base_value = self.planted_seed.value
+            current_value = base_value * self.flat_bonus
+            predicted_value = current_value * self.multiplier
+            return predicted_value
+        return 0
+
+    def calculate_synergy_bonus(self, soils, index):
+        seed = self.planted_seed
+        synergy = getattr(seed, "synergy_effect", {})
+        bonus = 0
+        if synergy:
+            if synergy.get("type") == "adjacent_same_type_value_boost":
+                if index < len(soils) - 1:
+                    neighbor = soils[index + 1]
+                    if neighbor.is_planted and neighbor.planted_seed and neighbor.planted_seed.seed_type == seed.seed_type:
+                        bonus += synergy.get("value", 0)
+            elif synergy.get("type") == "adjacent_type_value_boost":
+                target_type = synergy.get("target_seed_type")
+                per_match = synergy.get("bonus_per_match", 0)
+                for neighbor_idx in [index-1, index+1]:
+                    if 0 <= neighbor_idx < len(soils):
+                        neighbor = soils[neighbor_idx]
+                        if neighbor.is_planted and neighbor.planted_seed and neighbor.planted_seed.seed_type == target_type:
+                            bonus += per_match
+        return bonus
 
     def reset_soil(self):
         """Resets the soil to its initial state."""

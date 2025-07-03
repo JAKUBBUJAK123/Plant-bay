@@ -60,7 +60,7 @@ class Game:
 
         # --- Game Variables ---
         self.current_score = 0
-        self.score_goal = 10
+        self.score_goal = 100
         self.predicted_score = 0
         self.round_number = 1
         self.coins_per_round = COINS_PER_ROUND

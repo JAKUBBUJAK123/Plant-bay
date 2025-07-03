@@ -27,7 +27,9 @@ class GameRoundManager:
         self.game_manager.predicted_score = 0
         for soil in self.game_manager.soils:
             if soil.is_planted and soil.planted_seed is not None:
-                self.game_manager.predicted_score += soil.planted_seed.value * soil.multiplier
+                harvest_value = soil.predict_harvest_value()
+                synergy_value = soil.calculate_synergy_bonus(self.game_manager.soils, self.game_manager.soils.index(soil))
+                self.game_manager.predicted_score += harvest_value + synergy_value
 
     def _draw_hand_from_backpack(self):
         """Draws a specified number of seeds from the player's backpack to their hand."""
@@ -116,17 +118,14 @@ class GameRoundManager:
 
 
         for soil in self.game_manager.soils:
-            multipler = soil.multiplier
             if soil.is_planted and soil.planted_seed is not None:
-                #---Evil soil ---
-                if getattr(soil, 'is_evil' , False):
+                if getattr(soil, 'is_evil', False):
                     if random.random() < 0.3:
-                        multipler = 0
-                    else:
-                        multipler = soil.multiplier
-
-                self.game_manager.current_score += soil.planted_seed.value * multipler
-                soil.reset_soil() # Reset soil (clears planted seed and color) after scoring
+                        soil.multiplier = 0
+                harvest_value = soil.harvest_seed(player=self.game_manager.player)
+                synergy_value = soil.calculate_synergy_bonus(self.game_manager.soils, self.game_manager.soils.index(soil))
+                self.game_manager.current_score += harvest_value + synergy_value
+                soil.reset_soil()
 
         # Any seeds remaining in hand were not planted, return them to backpack
         for seed in self.game_manager.seeds_in_hand:

@@ -6,7 +6,9 @@ class Seed:
     Represents a single seed in the player's hand/deck.
     Now uses an image asset.
     """
-    def __init__(self, x: int, y: int, image_path: str, name: str = "Basic Seed", target_size: tuple[int, int] = (50, 50) , value: int = 10 , description: str = "A generic seed."):
+    def __init__(self, x: int, y: int, image_path: str, name: str = "Basic Seed", target_size: tuple[int, int] = (50, 50) , 
+                value: int = 10 , description: str = "A generic seed.", seed_type: str = "basic",
+                on_harvest_effect: dict | None = None, synergy_effect: dict | None = None):
         """
         Initializes a Seed object.
 
@@ -27,6 +29,11 @@ class Seed:
 
         self.description = description
         self.popup_font = pygame.font.Font("assets/fonts/pixelFont.ttf", 14)
+
+        self.seed_type = seed_type
+        self.on_harvest_effect = on_harvest_effect or {}
+        self.synergy_effect = synergy_effect or {}
+
         # Store original position for snapping back
         self.original_x = x
         self.original_y = y
@@ -44,6 +51,9 @@ class Seed:
             data['size'],
             data['value'],
             data['description'],
+            data.get('seed_type', ""),
+            data.get('on_harvest_effect', {}),
+            data.get('synergy_effect', {})
         )
 
     def draw(self, screen: pygame.Surface):
