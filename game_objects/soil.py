@@ -100,6 +100,7 @@ class Soil:
         if not self.is_planted:
             self.is_planted = True
             self.planted_seed  = seed_object
+            self.play_sound()
 
     def harvest_seed(self, player=None) :
         if self.is_planted and self.planted_seed:
@@ -172,6 +173,11 @@ class Soil:
         
     def update_hoover_screen(self , mouse_pos):
         self.is_hovered = self.rect.collidepoint(mouse_pos)
+
+    def play_sound(self):
+        click_sound = pygame.mixer.Sound("music/sound_effects/plant.wav")
+        click_sound.set_volume(0.1)
+        click_sound.play()
 
     def draw_popup_pos(self , screen):
         if self.is_hovered:

@@ -28,6 +28,10 @@ BUTTON_HOVER_COLOR = (70, 170, 70)
 
 
 COINS_PER_ROUND = 50
+
+MUSIC_PATH = "music/Pixel Garden Theme (Remix).mp3"
+MUSIC_VOLUME = 0.1
+
 #--- Game State Constants---
 GAME_STATE_PLAYING = "PLAYING"
 GAME_STATE_SHOP = "SHOP"
@@ -39,6 +43,7 @@ GAME_STATE_ROUND_WON = "ROUND WON"
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(GAME_TITLE)
         self.clock = pygame.time.Clock()
@@ -57,6 +62,11 @@ class Game:
         self.font_hello_botany = pygame.font.Font(None, 48)
         self.font_score = pygame.font.Font(None, 30)
         self.font_game_over = pygame.font.Font(None, 100)
+
+        # --- Music ---
+        # pygame.mixer.music.load(MUSIC_PATH)
+        # pygame.mixer.music.set_volume(MUSIC_VOLUME)
+        # pygame.mixer.music.play(-1)
 
         # --- Game Variables ---
         self.current_score = 0
@@ -125,6 +135,7 @@ class Game:
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.backpack_icon_button.is_clicked(event.pos):
+                    self.backpack_icon_button.play_click_sound()
                     if self.current_game_state == self.GAME_STATE_INVENTORY:
                         self.change_state(self.previous_game_state)
                     else:
@@ -157,7 +168,7 @@ class Game:
                             self.drag_offset_x = mouse_x - self.dragged_item.rect.x
                             self.drag_offset_y = mouse_y - self.dragged_item.rect.y
                             break
-                elif self.current_game_state == self.GAME_STATE_INVENTORY:
+                elif self.current_game_state == self.GAME_STATE_INVENTORY and self.previous_game_state ==self.GAME_STATE_PLAYING:
                     for upgrade in self.player.get_backpack_upgrades():
                         if upgrade.is_clicked((mouse_x, mouse_y)):
                             self.dragged_item_scale = 1.0

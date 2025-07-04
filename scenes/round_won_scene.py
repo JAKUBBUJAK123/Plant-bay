@@ -55,6 +55,7 @@ class RoundWonScene():
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.go_to_shop_button.is_clicked(event.pos):
                 self.game_manager.change_state(self.game_manager.GAME_STATE_SHOP)
+                self.go_to_shop_button.play_click_sound()
                 self.game_manager.shop_scene.generate_products()
                 self.game_manager.current_score = 0
 

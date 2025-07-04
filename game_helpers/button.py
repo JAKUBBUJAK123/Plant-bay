@@ -3,7 +3,7 @@ import random
 
 class Button:
     """A simple button class."""
-    def __init__(self , x, y , width, height, text :str, button_color: tuple  ,button_hover_color:tuple, text_color: tuple , font_size: int):
+    def __init__(self , x, y , width, height, text :str, button_color: tuple  ,button_hover_color:tuple, text_color: tuple , font_size: int, sound_path: str = "music/sound_effects/click.wav"):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.button_color = button_color
@@ -11,6 +11,7 @@ class Button:
         self.font = pygame.font.Font("assets/fonts/pixelFont.ttf", font_size)
         self.is_hovered = False
         self.button_hover_color = button_hover_color
+        self.sound_path = sound_path
 
 
     def draw(self, screen:pygame.Surface):
@@ -33,4 +34,8 @@ class Button:
         clicked= self.rect.collidepoint(mouse_pos)
         return clicked
 
+    def play_click_sound(self):
+        click_sound = pygame.mixer.Sound(self.sound_path)
+        click_sound.set_volume(0.1)
+        click_sound.play()
     

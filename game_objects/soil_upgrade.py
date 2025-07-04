@@ -162,7 +162,7 @@ class SoilUpgrade:
             target_soil.is_clover = False
             target_soil.is_holy = False
             target_soil.upgraded_color = None
-
+        self.play_sound()
     def update_hoover_screen(self , mouse_pos):
         self.is_hovered = self.rect.collidepoint(mouse_pos)
 
@@ -201,3 +201,8 @@ class SoilUpgrade:
         self.shake_timer = 0
         self.shake_offset_x = 0
         self.shake_offset_y = 0
+
+    def play_sound(self, path:str ="music/sound_effects/soil-upgrade.wav"):
+        click_sound = pygame.mixer.Sound(path)
+        click_sound.set_volume(0.1)
+        click_sound.play()

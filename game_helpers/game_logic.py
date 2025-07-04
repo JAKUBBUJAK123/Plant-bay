@@ -138,6 +138,11 @@ class GameRoundManager:
             self.game_manager.player.add_coins(COINS_PER_ROUND)
 
             self.game_manager.change_state(self.game_manager.GAME_STATE_ROUND_WON)
+            def play_sound():
+                click_sound = pygame.mixer.Sound("music/sound_effects/round-won.wav")
+                click_sound.set_volume(0.5)
+                click_sound.play()
+            play_sound()
         else:
             self.start_new_round() # Start new round if failed
 

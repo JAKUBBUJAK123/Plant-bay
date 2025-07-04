@@ -41,7 +41,7 @@ class ShopScene:
         self.next_round_button = Button(20 , self.screen.get_height() - 70 , 180 , 50 ,
                                         "Next Round", (50,150,50),(0, 200, 0) ,(255,255,255), 24)
         self.roll_button = Button(20 , self.screen.get_height() - 140 , 180 , 50 ,
-                                        "Roll", (150,50,50), (200, 80, 80),(255,255,255), 24)
+                                        "Roll", (150,50,50), (200, 80, 80),(255,255,255), 24, "music/sound_effects/money-spend.mp3")
         self.generate_products()
 
 
@@ -86,7 +86,7 @@ class ShopScene:
                 mouse_pos = event.pos
                 #--- Handle Buying Products ---
                 for i, product_on_display in enumerate(self.products_on_display):
-                    if hasattr(product_on_display, "buy_button_rect") and product_on_display.buy_button_rect.collidepoint(mouse_pos):
+                    if hasattr(product_on_display, "buy_button") and product_on_display.buy_button.is_clicked(mouse_pos):
                         if self.player.get_coins() >= product_on_display.price:
                             self.player.remove_coins(product_on_display.price)
                             if isinstance(product_on_display, Seed):
@@ -100,6 +100,7 @@ class ShopScene:
                                                 effect_value=product_on_display.effect_value ,description=product_on_display.description)
                                 )
                             print(f"Bought {product_on_display.name} for {product_on_display.price} coins.")
+                            product_on_display.buy_button.play_click_sound()
                             self.products_on_display.pop(i)
                         else:
                             print("Not enough coins!")
@@ -109,12 +110,14 @@ class ShopScene:
                     if self.game_manager.player.get_coins() >= self.roll_cost:
                         self.game_manager.player.remove_coins(self.roll_cost)
                         self.generate_products()
+                        self.roll_button.play_click_sound()
                         print("Shop rolled!")
                     else:
                         print("Not enough coins to roll the shop!")
                 # --- Handle Next Round Button ---
                 if self.next_round_button.is_clicked(mouse_pos):
                     self.game_manager.change_state(self.game_manager.GAME_STATE_PLAYING)
+                    self.next_round_button.play_click_sound()
                     self.game_manager.round_manager.next_round()
 
 
@@ -141,7 +144,7 @@ class ShopScene:
             buy_button_x = product.rect.centerx - buy_button_width // 2
             buy_button_y = product.rect.bottom + 30
 
-            buy_button = Button(
+            product.buy_button = Button(
                 buy_button_x,
                 buy_button_y,
                 buy_button_width,
@@ -150,11 +153,11 @@ class ShopScene:
                 (0, 90, 0),
                 (0, 150, 0),
                 (255, 255, 255),
-                24
+                24,
+                "music/sound_effects/money-spend.mp3"
             )
-            buy_button.draw(self.screen)
-            # Store the button rect for click detection
-            product.buy_button_rect = buy_button.rect
+            product.buy_button.draw(self.screen)
+
 
 
         # Draw control buttons

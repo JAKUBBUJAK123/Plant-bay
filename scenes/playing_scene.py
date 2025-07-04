@@ -32,6 +32,7 @@ class PlayingScene:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.play_hand_button and self.play_hand_button.is_clicked(event.pos):
                 self.game_manager.round_manager.play_hand()
+                self.play_hand_button.play_click_sound()
 
     def update(self ,dt):
         mouse_pos = pygame.mouse.get_pos()
