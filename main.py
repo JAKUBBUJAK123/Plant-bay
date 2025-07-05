@@ -64,9 +64,9 @@ class Game:
         self.font_game_over = pygame.font.Font(None, 100)
 
         # --- Music ---
-        # pygame.mixer.music.load(MUSIC_PATH)
-        # pygame.mixer.music.set_volume(MUSIC_VOLUME)
-        # pygame.mixer.music.play(-1)
+        pygame.mixer.music.load(MUSIC_PATH)
+        pygame.mixer.music.set_volume(MUSIC_VOLUME)
+        pygame.mixer.music.play(-1)
 
         # --- Game Variables ---
         self.current_score = 0
