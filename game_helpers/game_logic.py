@@ -3,6 +3,7 @@ import pygame
 from game_objects.seed import Seed
 from game_objects.soil_upgrade import SoilUpgrade
 import random
+from game_helpers.sound_with_pith import play_sound_with_pitch
 
 # Constants used in game logic
 DEFAULT_SEED_VALUE = 10
@@ -29,6 +30,9 @@ class GameRoundManager:
         self.current_animating_soil = 0
         self.current_retrigger = 0
         self.soils_to_animate = []
+
+        self.pending_state_change = None
+        self.pending_state_change_time = 0
 
     def calculate_predicted_score(self):
         """Calculates the predicted score based on currently planted seeds."""
@@ -136,27 +140,25 @@ class GameRoundManager:
             self.current_animating_soil = 0
             self.current_retrigger = 0    
             self.is_animating_hand = True
+            self.pith_value = 0.1
             self.hand_animation_timer = pygame.time.get_ticks()
-        else:
-            self._finish_hand_play()
 
-        unplanted_seeds_in_hand = []
-
-        # Any seeds remaining in hand were not planted, return them to backpack
-        for seed in self.game_manager.seeds_in_hand:
-            unplanted_seeds_in_hand.append(seed)
-
-        self.game_manager.player.return_seeds_to_backpack(unplanted_seeds_in_hand)
-        self.game_manager.seeds_in_hand.clear() # Clear hand after processing
-
-
-        return
 
     def _finish_hand_play(self):
+        self.is_animating_hand = False
+        self.soils_to_animate.clear()
+        self.current_animating_soil = 0
+        self.current_retrigger = 0
+        self.pith_value = 0.1
+        
+        for soil in self.game_manager.soils:
+            soil.reset_soil()
+            
         if self.game_manager.current_score >= self.game_manager.score_goal:
             self.game_manager.player.add_coins(COINS_PER_ROUND)
 
-            self.game_manager.change_state(self.game_manager.GAME_STATE_ROUND_WON)
+            self.pending_state_change = self.game_manager.GAME_STATE_ROUND_WON
+            self.pending_state_change_time = pygame.time.get_ticks() + 300
             def play_sound():
                 click_sound = pygame.mixer.Sound("music/sound_effects/round-won.wav")
                 click_sound.set_volume(0.5)
@@ -181,6 +183,12 @@ class GameRoundManager:
     def start_new_round(self):
         """Resets the game state for a new round of play."""
         # Return any seeds that might still be in hand (e.g., from previous failed round)
+        self.is_animating_hand = False
+        self.soils_to_animate.clear()
+        self.current_animating_soil = 0
+        self.current_retrigger = 0
+        self.pith_value = 0.1
+            
         self.game_manager.player.return_seeds_to_backpack(self.game_manager.seeds_in_hand)
         self.game_manager.seeds_in_hand.clear() # Clear hand for new draw
 
@@ -189,9 +197,13 @@ class GameRoundManager:
         self.calculate_predicted_score() # Recalculate score for new round
 
     def update(self):
+        
+        if self.pending_state_change and pygame.time.get_ticks() >= self.pending_state_change_time:
+            self.game_manager.change_state(self.pending_state_change)
+            self.pending_state_change = None
         if self.is_animating_hand and self.soils_to_animate:
             now = pygame.time.get_ticks()
-
+            
             if self.current_animating_soil < len(self.soils_to_animate):
                 soil, total_retriggers = self.soils_to_animate[self.current_animating_soil]
 
@@ -201,7 +213,9 @@ class GameRoundManager:
                         soil.target_scale = 1.2
                         soil.start_shaking(duration=400, intensity=10)
                         soil.spawn_particles(20, (255, 215, 0, 180))
+                        play_sound_with_pitch("music/sound_effects/harvest.wav", pitch_factor=1.0 +self.pith_value)
                         soil.target_scale = 1.0
+                        self.pith_value += 0.1
 
                         if self.current_retrigger == total_retriggers - 1:
                             if getattr(soil, 'is_evil', False):
@@ -209,21 +223,17 @@ class GameRoundManager:
                                     soil.multiplier = 0 
                             harvest_value = soil.harvest_seed(player=self.game_manager.player)
                             synergy_value = soil.calculate_synergy_bonus(self.game_manager.soils, self.game_manager.soils.index(soil))
+                            
                             self.game_manager.current_score += harvest_value + synergy_value
-
-
+                            
                         self.current_retrigger += 1
                         self.hand_animation_timer = now 
 
                     if self.current_retrigger >= total_retriggers:
-                        soil.reset_soil()
+                        # soil.reset_soil()
                         self.current_animating_soil += 1
                         self.current_retrigger = 0
-                        self.hand_animation_timer = now
-
+                        self.hand_animation_timer = now            
             else:
-                self.is_animating_hand = False
-                self.soils_to_animate.clear()
-                self.current_animating_soil = 0
-                self.current_retrigger = 0
                 self._finish_hand_play()
+                
