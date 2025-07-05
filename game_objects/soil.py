@@ -2,6 +2,7 @@ import pygame
 from game_objects.seed import Seed
 import random
 from game_effects.particles import ParticleSystem
+from game_helpers.sound_with_pith import play_sound_with_pitch
 
 class Soil:
     def __init__(self , x: int, y:int , size:int, image_path:str, default_color: tuple):
@@ -39,6 +40,8 @@ class Soil:
         self.shake_timer = 0 
         self.original_x = x 
         self.original_y = y
+        self.scale = 1.0
+        self.target_scale = 1.0
 
         #Particles
         self.particle_system = ParticleSystem()
@@ -49,14 +52,21 @@ class Soil:
         
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.image, self.rect)
-        self.draw_popup_pos(screen)
+        if self.scale != 1.0:
+            scaled_img = pygame.transform.rotozoom(self.image, 0, self.scale)
+            rect = scaled_img.get_rect(center=self.rect.center)
+            screen.blit(scaled_img, rect)
+            image_rect = rect
+        else:
+            screen.blit(self.image, self.rect)
+            image_rect = self.rect
 
         if self.is_upgraded and self.upgraded_color:
-            overlay = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+            overlay = pygame.Surface(image_rect.size, pygame.SRCALPHA)
             overlay.fill((*self.upgraded_color, 100))
-            screen.blit(overlay, self.rect.topleft)
+            screen.blit(overlay, image_rect.topleft)
 
+        self.draw_popup_pos(screen)
         self.particle_system.draw(screen)
 
     def update(self, dt: int):
@@ -73,7 +83,10 @@ class Soil:
                 self.shake_offset_x = random.uniform(-current_intensity, current_intensity)
                 self.shake_offset_y = random.uniform(-current_intensity, current_intensity)
                 self.rect.topleft = (self.original_x + self.shake_offset_x, self.original_y + self.shake_offset_y)
-
+        if abs(self.scale - self.target_scale) > 0.01:
+            self.scale += (self.target_scale - self.scale) * 0.2
+        else:
+            self.scale = self.target_scale
         # Update particles
         self.particle_system.update()
 
@@ -100,7 +113,7 @@ class Soil:
         if not self.is_planted:
             self.is_planted = True
             self.planted_seed  = seed_object
-            self.play_sound()
+            play_sound_with_pitch("music/sound_effects/plant.wav", pitch_factor=1.0 + random.uniform(-0.2, 0.2))
 
     def harvest_seed(self, player=None) :
         if self.is_planted and self.planted_seed:
@@ -174,8 +187,8 @@ class Soil:
     def update_hoover_screen(self , mouse_pos):
         self.is_hovered = self.rect.collidepoint(mouse_pos)
 
-    def play_sound(self):
-        click_sound = pygame.mixer.Sound("music/sound_effects/plant.wav")
+    def play_sound(self, path:str = "music/sound_effects/plant.wav"):
+        click_sound = pygame.mixer.Sound(path)
         click_sound.set_volume(0.1)
         click_sound.play()
 
