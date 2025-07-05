@@ -23,10 +23,7 @@ class Player:
 
         #loading Seeds
         seed_data = load_json_file('seed_list.json')
-        for i in range(int(3)):
-            seed = Seed.load_seed(seed_data['Potato_Seed'])
-            self.backpack_seeds.append(seed)
-        for i in range(int(initial_seeds_count/2)):
+        for i in range(int(initial_seeds_count)):
             seed = Seed.load_seed(seed_data['Rose_Seed'])
             self.backpack_seeds.append(seed)
 

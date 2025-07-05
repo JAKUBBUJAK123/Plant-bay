@@ -64,13 +64,13 @@ class Game:
         self.font_game_over = pygame.font.Font(None, 100)
 
         # --- Music ---
-        pygame.mixer.music.load(MUSIC_PATH)
-        pygame.mixer.music.set_volume(MUSIC_VOLUME)
-        pygame.mixer.music.play(-1)
+        # pygame.mixer.music.load(MUSIC_PATH)
+        # pygame.mixer.music.set_volume(MUSIC_VOLUME)
+        # pygame.mixer.music.play(-1)
 
         # --- Game Variables ---
         self.current_score = 0
-        self.score_goal = 100
+        self.score_goal = 400
         self.predicted_score = 0
         self.round_number = 1
         self.coins_per_round = COINS_PER_ROUND
@@ -207,6 +207,7 @@ class Game:
         if self.current_game_state == self.GAME_STATE_PLAYING:
             self.playing_scene.update(dt)
             self.round_manager.calculate_predicted_score()
+            self.round_manager.update()
             for soil in self.soils:
                 soil.update(dt)
 

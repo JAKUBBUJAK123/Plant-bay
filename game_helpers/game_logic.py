@@ -21,6 +21,14 @@ class GameRoundManager:
     def __init__(self, game_manager):
         self.game_manager = game_manager
         self.NUM_SOILS = 5
+        #--- animation ---
+        self.is_animating_hand = False
+        self.hand_animation_timer = 0
+        self.HAND_ANIMATOIN_DURATION = 800
+        self.SOIL_ANIMATION_DELAY = 300
+        self.current_animating_soil = 0
+        self.current_retrigger = 0
+        self.soils_to_animate = []
 
     def calculate_predicted_score(self):
         """Calculates the predicted score based on currently planted seeds."""
@@ -114,18 +122,25 @@ class GameRoundManager:
     def play_hand(self):
         """Processes the played hand, calculates score, and checks win/lose condition."""
         print("\n--- Playing Hand ---")
-        unplanted_seeds_in_hand = []
-
-
+        self.soils_to_animate.clear()
+        self.soils_to_animate = []
         for soil in self.game_manager.soils:
             if soil.is_planted and soil.planted_seed is not None:
-                if getattr(soil, 'is_evil', False):
-                    if random.random() < 0.3:
-                        soil.multiplier = 0
-                harvest_value = soil.harvest_seed(player=self.game_manager.player)
-                synergy_value = soil.calculate_synergy_bonus(self.game_manager.soils, self.game_manager.soils.index(soil))
-                self.game_manager.current_score += harvest_value + synergy_value
-                soil.reset_soil()
+                effect = getattr(soil.planted_seed, "on_harvest_effect", {})
+                retrigger_count = 1
+                if effect and effect.get("type") == "retrigger":
+                    retrigger_count = effect.get("value", 0)
+                self.soils_to_animate.append((soil, retrigger_count))
+
+        if self.soils_to_animate:
+            self.current_animating_soil = 0
+            self.current_retrigger = 0    
+            self.is_animating_hand = True
+            self.hand_animation_timer = pygame.time.get_ticks()
+        else:
+            self._finish_hand_play()
+
+        unplanted_seeds_in_hand = []
 
         # Any seeds remaining in hand were not planted, return them to backpack
         for seed in self.game_manager.seeds_in_hand:
@@ -134,6 +149,10 @@ class GameRoundManager:
         self.game_manager.player.return_seeds_to_backpack(unplanted_seeds_in_hand)
         self.game_manager.seeds_in_hand.clear() # Clear hand after processing
 
+
+        return
+
+    def _finish_hand_play(self):
         if self.game_manager.current_score >= self.game_manager.score_goal:
             self.game_manager.player.add_coins(COINS_PER_ROUND)
 
@@ -144,7 +163,7 @@ class GameRoundManager:
                 click_sound.play()
             play_sound()
         else:
-            self.start_new_round() # Start new round if failed
+            self.start_new_round()
 
         if (
         self.game_manager.current_score < self.game_manager.score_goal and
@@ -152,7 +171,6 @@ class GameRoundManager:
         len(self.game_manager.seeds_in_hand) == 0
     ):
             self.game_manager.change_state(self.game_manager.GAME_STATE_LOSE)
-            return
 
     def next_round(self):
         """Advances to the next round, increasing the score goal."""
@@ -162,9 +180,6 @@ class GameRoundManager:
 
     def start_new_round(self):
         """Resets the game state for a new round of play."""
-        for soil in self.game_manager.soils:
-            soil.reset_soil() # This resets planted seed and color only
-
         # Return any seeds that might still be in hand (e.g., from previous failed round)
         self.game_manager.player.return_seeds_to_backpack(self.game_manager.seeds_in_hand)
         self.game_manager.seeds_in_hand.clear() # Clear hand for new draw
@@ -172,3 +187,43 @@ class GameRoundManager:
         self._draw_hand_from_backpack() # Draw new seeds for hand
         self._draw_upgrades_for_hand()  # Draw upgrades to hand (if any from backpack)
         self.calculate_predicted_score() # Recalculate score for new round
+
+    def update(self):
+        if self.is_animating_hand and self.soils_to_animate:
+            now = pygame.time.get_ticks()
+
+            if self.current_animating_soil < len(self.soils_to_animate):
+                soil, total_retriggers = self.soils_to_animate[self.current_animating_soil]
+
+                if now - self.hand_animation_timer > self.SOIL_ANIMATION_DELAY:
+                    # Perform animation for the current retrigger count
+                    if self.current_retrigger < total_retriggers:
+                        soil.target_scale = 1.2
+                        soil.start_shaking(duration=400, intensity=10)
+                        soil.spawn_particles(20, (255, 215, 0, 180))
+                        soil.target_scale = 1.0
+
+                        if self.current_retrigger == total_retriggers - 1:
+                            if getattr(soil, 'is_evil', False):
+                                if random.random() < 0.3:
+                                    soil.multiplier = 0 
+                            harvest_value = soil.harvest_seed(player=self.game_manager.player)
+                            synergy_value = soil.calculate_synergy_bonus(self.game_manager.soils, self.game_manager.soils.index(soil))
+                            self.game_manager.current_score += harvest_value + synergy_value
+
+
+                        self.current_retrigger += 1
+                        self.hand_animation_timer = now 
+
+                    if self.current_retrigger >= total_retriggers:
+                        soil.reset_soil()
+                        self.current_animating_soil += 1
+                        self.current_retrigger = 0
+                        self.hand_animation_timer = now
+
+            else:
+                self.is_animating_hand = False
+                self.soils_to_animate.clear()
+                self.current_animating_soil = 0
+                self.current_retrigger = 0
+                self._finish_hand_play()
