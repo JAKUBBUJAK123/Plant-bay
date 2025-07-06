@@ -114,6 +114,7 @@ class Soil:
             self.is_planted = True
             self.planted_seed  = seed_object
             play_sound_with_pitch("music/sound_effects/plant.wav", pitch_factor=1.0 + random.uniform(-0.2, 0.2))
+            self.spawn_particles(20, (50, 168, 82 , 180))
 
     def harvest_seed(self, player=None) :
         if self.is_planted and self.planted_seed:
@@ -187,17 +188,11 @@ class Soil:
     def update_hoover_screen(self , mouse_pos):
         self.is_hovered = self.rect.collidepoint(mouse_pos)
 
-    def play_sound(self, path:str = "music/sound_effects/plant.wav"):
-        click_sound = pygame.mixer.Sound(path)
-        click_sound.set_volume(0.1)
-        click_sound.play()
-
     def draw_popup_pos(self , screen):
         if self.is_hovered:
             
             text_surface = self.popup_font.render(f'{self.multiplier}X multi', True, (255, 255, 255))
 
-            
             padding = 5
             popup_width = text_surface.get_width() + 2 * padding
             popup_height = text_surface.get_height() + 2 * padding

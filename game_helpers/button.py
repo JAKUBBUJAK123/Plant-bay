@@ -1,5 +1,6 @@
 import pygame
 import random
+from game_helpers.sound_with_pith import play_sound_with_pitch
 
 class Button:
     """A simple button class."""
@@ -35,7 +36,4 @@ class Button:
         return clicked
 
     def play_click_sound(self):
-        click_sound = pygame.mixer.Sound(self.sound_path)
-        click_sound.set_volume(0.1)
-        click_sound.play()
-    
+        play_sound_with_pitch(self.sound_path, pitch_factor=1.0 + random.uniform(-0.2, 0.2))

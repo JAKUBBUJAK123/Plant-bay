@@ -11,6 +11,7 @@ from scenes.inventory_scene import InventoryScene
 from scenes.playing_scene import PlayingScene 
 from scenes.lose_scene import LoseScene 
 from scenes.round_won_scene import RoundWonScene
+from scenes.startting_scene import StartingScene
 
 # Import game logic and initialization helpers
 from game_helpers.game_logic import GameRoundManager
@@ -19,7 +20,7 @@ from game_helpers.game_initializer import GameInitializer
 # --- Global Constants ---
 SCREEN_WIDTH = 832
 SCREEN_HEIGHT = 640
-GAME_TITLE = "Botanic Game"
+GAME_TITLE = "Plant Bay"
 FPS = 60
 BG_COLOR = (0, 128, 0)
 TEXT_COLOR = (255, 255, 255)
@@ -38,7 +39,7 @@ GAME_STATE_SHOP = "SHOP"
 GAME_STATE_LOSE = "LOSE"
 GAME_STATE_INVENTORY = "INVENTORY"
 GAME_STATE_ROUND_WON = "ROUND WON"
-
+GAME_STATE_STARTING_SCREEN = "STARTING SCREEN"
 
 class Game:
     def __init__(self):
@@ -46,16 +47,19 @@ class Game:
         pygame.mixer.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(GAME_TITLE)
+        logo_image = pygame.image.load("assets/logos/logo.png").convert_alpha()
+        pygame.display.set_icon(logo_image)
         self.clock = pygame.time.Clock()
 
         # --- Game States ---
-        self.current_game_state = GAME_STATE_PLAYING
+        self.current_game_state = GAME_STATE_STARTING_SCREEN
         self.previous_state = GAME_STATE_PLAYING
         self.GAME_STATE_PLAYING = GAME_STATE_PLAYING
         self.GAME_STATE_SHOP = GAME_STATE_SHOP
         self.GAME_STATE_LOSE = GAME_STATE_LOSE
         self.GAME_STATE_INVENTORY = GAME_STATE_INVENTORY
         self.GAME_STATE_ROUND_WON = GAME_STATE_ROUND_WON
+        self.GAME_STATE_STARTING_SCREEN = GAME_STATE_STARTING_SCREEN
     
         # --- Fonts ---
         self.font_welcome = pygame.font.Font(None, 36)
@@ -112,6 +116,7 @@ class Game:
         self.playing_scene = PlayingScene(self.screen, self)
         self.lose_scene = LoseScene(self.screen, self)
         self.round_won_scene = RoundWonScene(self , self.screen)
+        self.starting_scene = StartingScene(self.screen, self)
 
         # --- Helper Managers ---
         self.game_initializer = GameInitializer(self)
@@ -153,6 +158,8 @@ class Game:
                 self.lose_scene.handle_event(event)
             elif self.current_game_state == self.GAME_STATE_ROUND_WON:
                 self.round_won_scene.handle_event(event)
+            elif self.current_game_state == self.GAME_STATE_STARTING_SCREEN:
+                self.starting_scene.handle_event(event)
 
             # --- Unified Drag & Drop Handling---
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -220,6 +227,8 @@ class Game:
             self.lose_scene.update()
         elif self.current_game_state == self.GAME_STATE_ROUND_WON:
             self.round_won_scene.update(dt)
+        elif self.current_game_state == self.GAME_STATE_STARTING_SCREEN:
+            self.starting_scene.update(dt)
 
         # --- Dragging Logic ---
         if self.dragging_item and self.dragged_item is not None and self.dragged_item_target_pos is not None:
@@ -257,15 +266,14 @@ class Game:
         elif self.current_game_state == self.GAME_STATE_ROUND_WON:
             self.round_won_scene.draw()
 
+        elif self.current_game_state == self.GAME_STATE_STARTING_SCREEN:
+            self.starting_scene.draw()
+
         if self.current_game_state in [self.GAME_STATE_PLAYING, self.GAME_STATE_SHOP ,self.GAME_STATE_INVENTORY]:
             self.backpack_icon_button.draw(self.screen)
 
         if self.dragged_item is not None and self.dragging_item:
             self.dragged_item.draw(self.screen)
-
-
-
-
 
 
         pygame.display.flip()
@@ -286,6 +294,10 @@ class Game:
 
 # --- Main execution block ---
 if __name__ == "__main__":
-
-    game = Game()
-    game.run()
+    try:
+        game = Game()
+        game.run()
+    except Exception as e:
+        print("Exception:", e)
+        pygame.quit()
+        sys.exit()

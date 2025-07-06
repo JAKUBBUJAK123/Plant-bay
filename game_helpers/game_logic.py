@@ -86,13 +86,11 @@ class GameRoundManager:
                         dropped_on_target = True
                         soil.plant_seed(dropped_item)
                         soil.set_image('assets/soils/planted_soil.png')
-                        soil.spawn_particles(20, (50, 168, 82 , 180))
 
                         #clover soil
                         if soil.is_clover:
                             rand = random.random()
                             if rand < 0.3:
-                                print('seed not consumed')
                                 dropped_item.reset_position()
                             elif rand < 0.6:
                                 self.game_manager.player.coins += 10
@@ -104,7 +102,6 @@ class GameRoundManager:
                             soil.start_shaking(duration=200, intensity=10)
                             dropped_item.reset_position()
                     else:
-                        print("Soil is already planted! Cannot plant seed.")
                         pass
                 elif isinstance(dropped_item, SoilUpgrade):
                     if getattr(soil, "is_upgraded" , False) and not getattr(SoilUpgrade, 'upgrade_effect' , 'remove_upgrade'):
@@ -113,7 +110,6 @@ class GameRoundManager:
                         return
                     dropped_on_target = True
                     dropped_item.apply_effect(soil,self.game_manager.soils)
-                    soil.spawn_particles(12, (0, 120, 255, 180))
                     self.game_manager.player.backpack_upgrades.remove(dropped_item)
                     if dropped_item in self.game_manager.upgrades_in_hand:
                         self.game_manager.upgrades_in_hand.remove(dropped_item)
@@ -159,14 +155,9 @@ class GameRoundManager:
 
             self.pending_state_change = self.game_manager.GAME_STATE_ROUND_WON
             self.pending_state_change_time = pygame.time.get_ticks() + 300
-            def play_sound():
-                click_sound = pygame.mixer.Sound("music/sound_effects/round-won.wav")
-                click_sound.set_volume(0.5)
-                click_sound.play()
-            play_sound()
+            play_sound_with_pitch('music/sound_effects/round-won.wav', 1.0)
         else:
             self.start_new_round()
-
         if (
         self.game_manager.current_score < self.game_manager.score_goal and
         len(self.game_manager.player.backpack_seeds) == 0 and
@@ -182,13 +173,6 @@ class GameRoundManager:
 
     def start_new_round(self):
         """Resets the game state for a new round of play."""
-        # Return any seeds that might still be in hand (e.g., from previous failed round)
-        self.is_animating_hand = False
-        self.soils_to_animate.clear()
-        self.current_animating_soil = 0
-        self.current_retrigger = 0
-        self.pith_value = 0.1
-            
         self.game_manager.player.return_seeds_to_backpack(self.game_manager.seeds_in_hand)
         self.game_manager.seeds_in_hand.clear() # Clear hand for new draw
 
@@ -230,7 +214,6 @@ class GameRoundManager:
                         self.hand_animation_timer = now 
 
                     if self.current_retrigger >= total_retriggers:
-                        # soil.reset_soil()
                         self.current_animating_soil += 1
                         self.current_retrigger = 0
                         self.hand_animation_timer = now            

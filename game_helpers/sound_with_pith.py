@@ -13,5 +13,5 @@ def play_sound_with_pitch(path, pitch_factor=1.0):
     if arr.ndim > 1:
         arr_resampled = np.column_stack([arr_resampled, arr_resampled])
     sound_resampled = pygame.sndarray.make_sound(arr_resampled.astype(arr.dtype))
-    sound_resampled.set_volume(0.5)
+    sound_resampled.set_volume(0.1)
     sound_resampled.play()
