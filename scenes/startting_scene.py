@@ -52,6 +52,7 @@ class StartingScene:
 
                 elif self.options_button.is_clicked(mouse_pos):
                     self.button.play_click_sound()
+                    self.game_manager.change_state(self.game_manager.GAME_STATE_OPTIONS)
                 
                 elif self.stats_button.is_clicked(mouse_pos):
                     self.button.play_click_sound()

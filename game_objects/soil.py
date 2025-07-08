@@ -29,7 +29,7 @@ class Soil:
         self.crit_chance = 0.0
         self.return_chance = 0.0
 
-        self.next_plant_buff: dict | None = None
+        self.next_plant_buff: dict = None
 
         #Shaking properties
         self.is_shaking = False

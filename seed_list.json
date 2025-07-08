@@ -8,7 +8,7 @@
     "size": [50, 50],
     "seed_type" : "flower",
     "on_harvest_effect": {"type": "add_coins", "value": 25},
-    "synergy_effect" : {}
+    "synergy_effect" : {"type": "S" , "value" : 1}
   },
   "Basic_Seed":
   {
@@ -18,7 +18,7 @@
     "value": 10,
     "size": [50, 50],
     "seed_type" : "basic",
-    "on_harvest_effect" : {},
+    "on_harvest_effect" : {"type": "S" , "value" : 1},
     "synergy_effect": {"type": "adjacent_same_type_value_boost", "value": 10}
   },
   "Potato_Seed": {
@@ -29,7 +29,7 @@
     "size" : [50,50],
     "seed_type" : "root",
     "on_harvest_effect" : {"type" : "self_duplicate_chance" , "value" : 0.3},
-    "synergy_effect" : {}
+    "synergy_effect" : {"type": "S" , "value" : 1}
   },
     "Beetroot_Seed": {
     "name": "Beetroot Seed",
@@ -38,7 +38,7 @@
     "value" : 30,
     "size" : [50,50],
     "seed_type" : "root",
-    "on_harvest_effect" : {},
+    "on_harvest_effect" : {"type": "S" , "value" : 1},
     "synergy_effect": {"type": "adjacent_type_value_boost", "target_seed_type": "flower", "bonus_per_match": 15}
   },
     "Rose_Seed": {
@@ -49,6 +49,6 @@
     "size" : [50,50],
     "seed_type" : "flower",
     "on_harvest_effect" : {"type": "retrigger", "value": 2},
-    "synergy_effect": {}
+    "synergy_effect": {"type": "S" , "value" : 1}
   }
 }

@@ -10,8 +10,16 @@ Main_tiles = {
     8 : 'assets/tiles/ui_tiles/tr.png',
 }
 
-UI_Tiles = {
-    1 : 'assets/tiles/ui_tiles/uiui/ui.png'
+test_tiles = {
+    0 : 'assets/tiles/ui_tiles/mm.png',
+    1 : 'assets/tiles/ui_tiles/mm.png',
+    2 : 'assets/tiles/ui_tiles/mm.png',
+    3 : 'assets/tiles/ui_tiles/mm.png',
+    4 : 'assets/tiles/ui_tiles/mm.png',
+    5 : 'assets/tiles/ui_tiles/mm.png',
+    6 : 'assets/tiles/ui_tiles/mm.png',
+    7 : 'assets/tiles/ui_tiles/mm.png',
+    8 : 'assets/tiles/ui_tiles/mm.png',
 }
 
 Backpack_tiles = {
@@ -47,18 +55,6 @@ GAME_MAP = [
     [2,1,1,1,1,1,1,1,1,1,1,1,4,],
 ]
 
-UI_MAP = [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0],
-]
 
 BACKPACK_MAP = [
     [7,6,6,6,6,6,6,6,6,6,6,6,8,],

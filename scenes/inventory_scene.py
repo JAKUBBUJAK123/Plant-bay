@@ -4,7 +4,7 @@ from game_objects.seed import Seed
 from game_helpers.button import Button
 from game_objects.soil_upgrade import SoilUpgrade
 from game_helpers.tilemap_generator import TilemapGenerator
-from tilesets.background_tileset import TILE_SIZE, Backpack_tiles, BACKPACK_MAP 
+from tilesets.background_tileset import TILE_SIZE, Backpack_tiles, BACKPACK_MAP , test_tiles
 
 class InventoryScene:
     def __init__(self , screen:pygame.Surface, player: Player , game_manager):

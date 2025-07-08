@@ -12,6 +12,7 @@ from scenes.playing_scene import PlayingScene
 from scenes.lose_scene import LoseScene 
 from scenes.round_won_scene import RoundWonScene
 from scenes.startting_scene import StartingScene
+from scenes.options_scene import Options_scene
 
 # Import game logic and initialization helpers
 from game_helpers.game_logic import GameRoundManager
@@ -40,6 +41,7 @@ GAME_STATE_LOSE = "LOSE"
 GAME_STATE_INVENTORY = "INVENTORY"
 GAME_STATE_ROUND_WON = "ROUND WON"
 GAME_STATE_STARTING_SCREEN = "STARTING SCREEN"
+GAME_STATE_OPTIONS = "OPTIONS"
 
 class Game:
     def __init__(self):
@@ -47,8 +49,8 @@ class Game:
         pygame.mixer.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(GAME_TITLE)
-        logo_image = pygame.image.load("assets/logos/logo.png").convert_alpha()
-        pygame.display.set_icon(logo_image)
+        logo = pygame.image.load("assets/logos/logo.png")
+        pygame.display.set_icon(logo)
         self.clock = pygame.time.Clock()
 
         # --- Game States ---
@@ -60,6 +62,7 @@ class Game:
         self.GAME_STATE_INVENTORY = GAME_STATE_INVENTORY
         self.GAME_STATE_ROUND_WON = GAME_STATE_ROUND_WON
         self.GAME_STATE_STARTING_SCREEN = GAME_STATE_STARTING_SCREEN
+        self.GAME_STATE_OPTIONS = GAME_STATE_OPTIONS
     
         # --- Fonts ---
         self.font_welcome = pygame.font.Font(None, 36)
@@ -117,6 +120,7 @@ class Game:
         self.lose_scene = LoseScene(self.screen, self)
         self.round_won_scene = RoundWonScene(self , self.screen)
         self.starting_scene = StartingScene(self.screen, self)
+        self.options_scene = Options_scene(self.screen, self)
 
         # --- Helper Managers ---
         self.game_initializer = GameInitializer(self)
@@ -160,6 +164,8 @@ class Game:
                 self.round_won_scene.handle_event(event)
             elif self.current_game_state == self.GAME_STATE_STARTING_SCREEN:
                 self.starting_scene.handle_event(event)
+            elif self.current_game_state == self.GAME_STATE_OPTIONS:
+                self.options_scene.handle_event(event)
 
             # --- Unified Drag & Drop Handling---
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -217,7 +223,6 @@ class Game:
             self.round_manager.update()
             for soil in self.soils:
                 soil.update(dt)
-
         elif self.current_game_state == self.GAME_STATE_SHOP:
             self.shop_scene.update(dt) 
 
@@ -229,6 +234,8 @@ class Game:
             self.round_won_scene.update(dt)
         elif self.current_game_state == self.GAME_STATE_STARTING_SCREEN:
             self.starting_scene.update(dt)
+        elif self.current_game_state == self.GAME_STATE_OPTIONS:
+            self.options_scene.update(dt)
 
         # --- Dragging Logic ---
         if self.dragging_item and self.dragged_item is not None and self.dragged_item_target_pos is not None:
@@ -245,14 +252,12 @@ class Game:
             if hasattr(self, 'drag_scale_target') and hasattr(self, 'dragged_item_scale'):
                  self.dragged_item_scale += (self.drag_scale_target - self.dragged_item_scale) * 0.2
 
-        
-        
 
     def draw(self):
         """Draws elements on the screen based on the current game state."""
-
         if self.current_game_state == self.GAME_STATE_PLAYING:
             self.playing_scene.draw()
+            
 
         elif self.current_game_state == self.GAME_STATE_SHOP:
             self.shop_scene.draw()
@@ -266,8 +271,11 @@ class Game:
         elif self.current_game_state == self.GAME_STATE_ROUND_WON:
             self.round_won_scene.draw()
 
-        elif self.current_game_state == self.GAME_STATE_STARTING_SCREEN:
+        if self.current_game_state == self.GAME_STATE_STARTING_SCREEN:
             self.starting_scene.draw()
+ 
+        elif self.current_game_state == self.GAME_STATE_OPTIONS:
+            self.options_scene.draw()
 
         if self.current_game_state in [self.GAME_STATE_PLAYING, self.GAME_STATE_SHOP ,self.GAME_STATE_INVENTORY]:
             self.backpack_icon_button.draw(self.screen)
@@ -298,6 +306,7 @@ if __name__ == "__main__":
         game = Game()
         game.run()
     except Exception as e:
-        print("Exception:", e)
+        import traceback
+        traceback.print_exc()
         pygame.quit()
-        sys.exit()
+        exit()

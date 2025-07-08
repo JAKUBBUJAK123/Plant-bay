@@ -8,7 +8,7 @@ class Seed:
     """
     def __init__(self, x: int, y: int, image_path: str, name: str = "Basic Seed", target_size: tuple[int, int] = (50, 50) , 
                 value: int = 10 , description: str = "A generic seed.", seed_type: str = "basic",
-                on_harvest_effect: dict | None = None, synergy_effect: dict | None = None):
+                on_harvest_effect: dict = None, synergy_effect: dict = None):
         """
         Initializes a Seed object.
 
@@ -51,7 +51,7 @@ class Seed:
             data['size'],
             data['value'],
             data['description'],
-            data.get('seed_type', ""),
+            data['seed_type'],
             data.get('on_harvest_effect', {}),
             data.get('synergy_effect', {})
         )

@@ -8,7 +8,7 @@ class Player:
     """
     Represents the player in the game, managing their score and seed backpack.
     """
-    def __init__(self , initial_seeds_count: int = 10 , initial_coins : int = 0 , inital_upgrades = 1):
+    def __init__(self , initial_seeds_count: int = 10 , initial_coins : int = 0 , inital_upgrades:int= 1):
         """
         Initializes the Player with a starting set of seeds.
 
@@ -23,8 +23,8 @@ class Player:
 
         #loading Seeds
         seed_data = load_json_file('seed_list.json')
-        for i in range(int(initial_seeds_count)):
-            seed = Seed.load_seed(seed_data['Rose_Seed'])
+        for i in range(initial_seeds_count):
+            seed = Seed.load_seed(seed_data["Sunflower_Seed"])
             self.backpack_seeds.append(seed)
 
         #loading upgrades
